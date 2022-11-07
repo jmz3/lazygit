@@ -43,15 +43,21 @@ func getBranchDisplayStrings(b *models.Branch, fullDescription bool, diffed bool
 		recencyColor = style.FgGreen
 	}
 
-	res := make([]string, 0, 4)
+	res := make([]string, 0, 6)
 	res = append(res, recencyColor.Sprint(b.Recency))
 	if icons.IsIconEnabled() {
 		res = append(res, nameTextStyle.Sprint(icons.IconForBranch(b)))
 	}
-	res = append(res, coloredName)
+	res = append(
+		res,
+		b.CommitHash,
+		coloredName,
+	)
+
 	if fullDescription {
 		res = append(
 			res,
+			utils.TruncateWithEllipsis(b.Subject, 60),
 			fmt.Sprintf("%s %s",
 				style.FgYellow.Sprint(b.UpstreamRemote),
 				style.FgYellow.Sprint(b.UpstreamBranch),

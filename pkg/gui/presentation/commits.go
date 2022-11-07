@@ -280,6 +280,9 @@ func displayCommit(
 	}
 
 	cols := make([]string, 0, 7)
+	if !fullDescription {
+		cols = append(cols, style.FgCyan.Sprint(utils.UnixToTimeAgo(commit.UnixTimestamp)))
+	}
 	if icons.IsIconEnabled() {
 		cols = append(cols, shaColor.Sprint(icons.IconForCommit(commit)))
 	}

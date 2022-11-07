@@ -156,7 +156,9 @@ func (self *BranchCommands) Rename(oldName string, newName string) error {
 }
 
 func (self *BranchCommands) GetRawBranches() (string, error) {
-	return self.cmd.New(`git for-each-ref --sort=-committerdate --format="%(HEAD)%00%(refname:short)%00%(upstream:short)%00%(upstream:track)" refs/heads`).DontLog().RunWithOutput()
+	return self.cmd.New(
+		fmt.Sprintf("git for-each-ref --sort=-committerdate --format=\"%%(HEAD)%%00%%(refname:short)%%00%%(upstream:short)%%00%%(upstream:track)%%00%%(subject)%%00%%(objectname:short=%d)\" refs/heads", utils.COMMIT_HASH_SHORT_SIZE),
+	).DontLog().RunWithOutput()
 }
 
 type MergeOpts struct {
