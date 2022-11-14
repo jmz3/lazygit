@@ -155,12 +155,6 @@ func (self *BranchCommands) Rename(oldName string, newName string) error {
 	return self.cmd.New(fmt.Sprintf("git branch --move %s %s", self.cmd.Quote(oldName), self.cmd.Quote(newName))).Run()
 }
 
-func (self *BranchCommands) GetRawBranches() (string, error) {
-	return self.cmd.New(
-		fmt.Sprintf("git for-each-ref --sort=-committerdate --format=\"%%(HEAD)%%00%%(refname:short)%%00%%(upstream:short)%%00%%(upstream:track)%%00%%(subject)%%00%%(objectname:short=%d)\" refs/heads", utils.COMMIT_HASH_SHORT_SIZE),
-	).DontLog().RunWithOutput()
-}
-
 type MergeOpts struct {
 	FastForwardOnly bool
 }

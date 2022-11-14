@@ -1,6 +1,7 @@
 package git_commands
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -8,8 +9,10 @@ import (
 	"github.com/jesseduffield/generics/slices"
 	"github.com/jesseduffield/go-git/v5/config"
 	"github.com/jesseduffield/lazygit/pkg/commands/models"
+	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
 	"github.com/jesseduffield/lazygit/pkg/common"
 	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/samber/lo"
 )
 
 // context:
@@ -36,20 +39,20 @@ type BranchInfo struct {
 // BranchLoader returns a list of Branch objects for the current repo
 type BranchLoader struct {
 	*common.Common
-	getRawBranches       func() (string, error)
+	cmd                  oscommands.ICmdObjBuilder
 	getCurrentBranchInfo func() (BranchInfo, error)
 	config               BranchLoaderConfigCommands
 }
 
 func NewBranchLoader(
 	cmn *common.Common,
-	getRawBranches func() (string, error),
+	cmd oscommands.ICmdObjBuilder,
 	getCurrentBranchInfo func() (BranchInfo, error),
 	config BranchLoaderConfigCommands,
 ) *BranchLoader {
 	return &BranchLoader{
 		Common:               cmn,
-		getRawBranches:       getRawBranches,
+		cmd:                  cmd,
 		getCurrentBranchInfo: getCurrentBranchInfo,
 		config:               config,
 	}
@@ -128,8 +131,8 @@ func (self *BranchLoader) obtainBranches() []*models.Branch {
 		}
 
 		split := strings.Split(line, "\x00")
-		if len(split) != 6 {
-			// Ignore line if it isn't separated into 4 parts
+		if len(split) != len(branchFields) {
+			// Ignore line if it isn't separated into the expected number of parts
 			// This is probably a warning message, for more info see:
 			// https://github.com/jesseduffield/lazygit/issues/1385#issuecomment-885580439
 			return nil, false
@@ -139,8 +142,29 @@ func (self *BranchLoader) obtainBranches() []*models.Branch {
 	})
 }
 
+func (self *BranchLoader) getRawBranches() (string, error) {
+	format := strings.Join(
+		lo.Map(branchFields, func(thing string, _ int) string {
+			return "%(" + thing + ")"
+		}),
+		"%00",
+	)
+
+	return self.cmd.New(
+		fmt.Sprintf("git for-each-ref --sort=-committerdate --format=\"%s\" refs/heads", format),
+	).DontLog().RunWithOutput()
+}
+
+var branchFields = []string{
+	"HEAD",
+	"refname:short",
+	"upstream:short",
+	"upstream:track",
+	"subject",
+	fmt.Sprintf("objectname:short=%d", utils.COMMIT_HASH_SHORT_SIZE),
+}
+
 // Obtain branch information from parsed line output of getRawBranches()
-// split contains the '|' separated tokens in the line of output
 func obtainBranch(split []string) *models.Branch {
 	headMarker := split[0]
 	fullName := split[1]
