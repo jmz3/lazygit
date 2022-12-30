@@ -11,7 +11,7 @@ func (gui *Gui) handleCreateFilteringMenuPanel() error {
 	fileName := ""
 	switch gui.c.CurrentSideContext() {
 	case gui.State.Contexts.Files:
-		node := gui.getSelectedFileNode()
+		node := gui.State.Contexts.Files.GetSelected()
 		if node != nil {
 			fileName = node.GetPath()
 		}

@@ -11,6 +11,15 @@ import (
 
 type BackgroundRoutineMgr struct {
 	gui *Gui
+
+	// if we've suspended the gui (e.g. because we've switched to a subprocess)
+	// we typically want to pause some things that are running like background
+	// file refreshes
+	pauseBackgroundThreads bool
+}
+
+func (self *BackgroundRoutineMgr) PauseBackgroundThreads(pause bool) {
+	self.pauseBackgroundThreads = pause
 }
 
 func (self *BackgroundRoutineMgr) startBackgroundRoutines() {
@@ -65,7 +74,7 @@ func (self *BackgroundRoutineMgr) goEvery(interval time.Duration, stop chan stru
 		for {
 			select {
 			case <-ticker.C:
-				if self.gui.PauseBackgroundThreads {
+				if self.pauseBackgroundThreads {
 					continue
 				}
 				_ = function()

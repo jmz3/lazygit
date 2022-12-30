@@ -16,6 +16,7 @@ type BaseContext struct {
 	keybindingsFns      []types.KeybindingsFn
 	mouseKeybindingsFns []types.MouseKeybindingsFn
 	onClickFn           func() error
+	onRenderToMainFn    func() error
 
 	focusable           bool
 	transient           bool
@@ -127,6 +128,16 @@ func (self *BaseContext) AddOnClickFn(fn func() error) {
 
 func (self *BaseContext) GetOnClick() func() error {
 	return self.onClickFn
+}
+
+func (self *BaseContext) AddOnRenderToMainFn(fn func() error) {
+	if fn != nil {
+		self.onRenderToMainFn = fn
+	}
+}
+
+func (self *BaseContext) GetOnRenderToMain() func() error {
+	return self.onRenderToMainFn
 }
 
 func (self *BaseContext) GetMouseKeybindings(opts types.KeybindingsOpts) []*gocui.ViewMouseBinding {

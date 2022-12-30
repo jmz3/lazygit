@@ -11,7 +11,10 @@ type BranchesContext struct {
 	*ListContextTrait
 }
 
-var _ types.IListContext = (*BranchesContext)(nil)
+var (
+	_ types.IListContext    = (*BranchesContext)(nil)
+	_ types.DiffableContext = (*BranchesContext)(nil)
+)
 
 func NewBranchesContext(
 	getModel func() []*models.Branch,
@@ -19,14 +22,13 @@ func NewBranchesContext(
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
 	onFocus func(types.OnFocusOpts) error,
-	onRenderToMain func() error,
 	onFocusLost func(opts types.OnFocusLostOpts) error,
 
 	c *types.HelperCommon,
 ) *BranchesContext {
 	viewModel := NewBasicViewModel(getModel)
 
-	return &BranchesContext{
+	self := &BranchesContext{
 		BasicViewModel: viewModel,
 		ListContextTrait: &ListContextTrait{
 			Context: NewSimpleContext(NewBaseContext(NewBaseContextOpts{
@@ -36,15 +38,16 @@ func NewBranchesContext(
 				Kind:       types.SIDE_CONTEXT,
 				Focusable:  true,
 			}), ContextCallbackOpts{
-				OnFocus:        onFocus,
-				OnFocusLost:    onFocusLost,
-				OnRenderToMain: onRenderToMain,
+				OnFocus:     onFocus,
+				OnFocusLost: onFocusLost,
 			}),
 			list:              viewModel,
 			getDisplayStrings: getDisplayStrings,
 			c:                 c,
 		},
 	}
+
+	return self
 }
 
 func (self *BranchesContext) GetSelectedItemId() string {
@@ -62,4 +65,17 @@ func (self *BranchesContext) GetSelectedRef() types.Ref {
 		return nil
 	}
 	return branch
+}
+
+func (self *BranchesContext) GetDiffTerminals() []string {
+	// for our local branches we want to include both the branch and its upstream
+	branch := self.GetSelected()
+	if branch != nil {
+		names := []string{branch.ID()}
+		if branch.IsTrackingRemote() {
+			names = append(names, branch.ID()+"@{u}")
+		}
+		return names
+	}
+	return nil
 }

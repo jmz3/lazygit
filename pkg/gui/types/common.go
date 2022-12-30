@@ -2,12 +2,14 @@ package types
 
 import (
 	"github.com/jesseduffield/gocui"
+	"github.com/jesseduffield/lazygit/pkg/commands"
 	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
 	"github.com/jesseduffield/lazygit/pkg/commands/models"
 	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
 	"github.com/jesseduffield/lazygit/pkg/commands/types/enums"
 	"github.com/jesseduffield/lazygit/pkg/common"
 	"github.com/jesseduffield/lazygit/pkg/config"
+	"github.com/jesseduffield/lazygit/pkg/utils"
 	"github.com/sasha-s/go-deadlock"
 	"gopkg.in/ozeidan/fuzzy-patricia.v3/patricia"
 )
@@ -55,6 +57,7 @@ type IGuiCommon interface {
 	// enters search mode for the current view
 	OpenSearch()
 
+	GetConfig() config.AppConfigurer
 	GetAppState() *config.AppState
 	SaveAppState() error
 
@@ -68,6 +71,15 @@ type IGuiCommon interface {
 	GocuiGui() *gocui.Gui
 
 	Views() Views
+
+	Git() *commands.GitCommand
+	OS() *oscommands.OSCommand
+	Model() *Model
+	Modes() *Modes
+
+	Mutexes() Mutexes
+
+	State() IStateAccessor
 }
 
 type IPopupHandler interface {
@@ -188,4 +200,18 @@ type Mutexes struct {
 	SubprocessMutex       *deadlock.Mutex
 	PopupMutex            *deadlock.Mutex
 	PtyMutex              *deadlock.Mutex
+}
+
+type IStateAccessor interface {
+	GetIgnoreWhitespaceInDiffView() bool
+	SetIgnoreWhitespaceInDiffView(value bool)
+	GetRepoPathStack() *utils.StringStack
+	GetRepoState() IRepoStateAccessor
+	// tells us whether we're currently updating lazygit
+	GetUpdating() bool
+	SetUpdating(value bool)
+}
+
+type IRepoStateAccessor interface {
+	GetViewsSetup() bool
 }

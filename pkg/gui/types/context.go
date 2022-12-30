@@ -72,6 +72,8 @@ type IBaseContext interface {
 	// our list controller can come along and wrap it in a list-specific click handler.
 	// We'll need to think of a better way to do this.
 	AddOnClickFn(func() error)
+
+	AddOnRenderToMainFn(func() error)
 }
 
 type Context interface {
@@ -81,6 +83,16 @@ type Context interface {
 	HandleFocusLost(opts OnFocusLostOpts) error
 	HandleRender() error
 	HandleRenderToMain() error
+}
+
+type DiffableContext interface {
+	Context
+
+	// Returns the current diff terminals of the currently selected item.
+	// in the case of a branch it returns both the branch and it's upstream name,
+	// which becomes an option when you bring up the diff menu, but when you're just
+	// flicking through branches it will be using the local branch name.
+	GetDiffTerminals() []string
 }
 
 type IListContext interface {
@@ -150,6 +162,7 @@ type HasKeybindings interface {
 	GetKeybindings(opts KeybindingsOpts) []*Binding
 	GetMouseKeybindings(opts KeybindingsOpts) []*gocui.ViewMouseBinding
 	GetOnClick() func() error
+	GetOnRenderToMain() func() error
 }
 
 type IController interface {

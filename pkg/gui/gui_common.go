@@ -2,6 +2,7 @@ package gui
 
 import (
 	"github.com/jesseduffield/gocui"
+	"github.com/jesseduffield/lazygit/pkg/commands"
 	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
 	"github.com/jesseduffield/lazygit/pkg/config"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
@@ -75,6 +76,10 @@ func (self *guiCommon) SaveAppState() error {
 	return self.gui.Config.SaveAppState()
 }
 
+func (self *guiCommon) GetConfig() config.AppConfigurer {
+	return self.gui.Config
+}
+
 func (self *guiCommon) RenderString(view *gocui.View, content string) error {
 	return self.gui.renderString(view, content)
 }
@@ -85,6 +90,26 @@ func (self *guiCommon) Render() {
 
 func (self *guiCommon) Views() types.Views {
 	return self.gui.Views
+}
+
+func (self *guiCommon) Git() *commands.GitCommand {
+	return self.gui.git
+}
+
+func (self *guiCommon) OS() *oscommands.OSCommand {
+	return self.gui.os
+}
+
+func (self *guiCommon) Modes() *types.Modes {
+	return self.gui.State.Modes
+}
+
+func (self *guiCommon) Model() *types.Model {
+	return self.gui.State.Model
+}
+
+func (self *guiCommon) Mutexes() types.Mutexes {
+	return self.gui.Mutexes
 }
 
 func (self *guiCommon) OpenSearch() {
@@ -110,4 +135,8 @@ func (self *guiCommon) MainViewPairs() types.MainViewPairs {
 		PatchBuilding:  self.gui.patchBuildingMainContextPair(),
 		MergeConflicts: self.gui.mergingMainContextPair(),
 	}
+}
+
+func (self *guiCommon) State() types.IStateAccessor {
+	return self.gui.stateAccessor
 }

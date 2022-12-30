@@ -11,7 +11,10 @@ type LocalCommitsContext struct {
 	*ViewportListContextTrait
 }
 
-var _ types.IListContext = (*LocalCommitsContext)(nil)
+var (
+	_ types.IListContext    = (*LocalCommitsContext)(nil)
+	_ types.DiffableContext = (*LocalCommitsContext)(nil)
+)
 
 func NewLocalCommitsContext(
 	getModel func() []*models.Commit,
@@ -19,7 +22,6 @@ func NewLocalCommitsContext(
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
 	onFocus func(types.OnFocusOpts) error,
-	onRenderToMain func() error,
 	onFocusLost func(opts types.OnFocusLostOpts) error,
 
 	c *types.HelperCommon,
@@ -37,9 +39,8 @@ func NewLocalCommitsContext(
 					Kind:       types.SIDE_CONTEXT,
 					Focusable:  true,
 				}), ContextCallbackOpts{
-					OnFocus:        onFocus,
-					OnFocusLost:    onFocusLost,
-					OnRenderToMain: onRenderToMain,
+					OnFocus:     onFocus,
+					OnFocusLost: onFocusLost,
 				}),
 				list:              viewModel,
 				getDisplayStrings: getDisplayStrings,
@@ -89,6 +90,12 @@ func (self *LocalCommitsContext) GetSelectedRef() types.Ref {
 		return nil
 	}
 	return commit
+}
+
+func (self *LocalCommitsContext) GetDiffTerminals() []string {
+	itemId := self.GetSelectedItemId()
+
+	return []string{itemId}
 }
 
 func (self *LocalCommitsViewModel) SetLimitCommits(value bool) {

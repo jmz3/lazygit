@@ -119,6 +119,10 @@ func (gui *Gui) Refresh(options types.RefreshOptions) error {
 			refresh(func() { _ = gui.refreshFilesAndSubmodules() })
 		}
 
+		if scopeSet.Includes(types.FILES) || scopeSet.Includes(types.SUBMODULES) {
+			refresh(func() { _ = gui.refreshFilesAndSubmodules() })
+		}
+
 		if scopeSet.Includes(types.STASH) {
 			refresh(func() { _ = gui.refreshStashEntries() })
 		}
@@ -551,7 +555,7 @@ func (gui *Gui) refreshStatus() {
 
 	workingTreeState := gui.git.Status.WorkingTreeState()
 	if workingTreeState != enums.REBASE_MODE_NONE {
-		status += style.FgYellow.Sprintf("(%s) ", formatWorkingTreeState(workingTreeState))
+		status += style.FgYellow.Sprintf("(%s) ", presentation.FormatWorkingTreeState(workingTreeState))
 	}
 
 	name := presentation.GetBranchTextStyle(currentBranch.Name).Sprint(currentBranch.Name)
@@ -577,7 +581,12 @@ func (gui *Gui) refreshStagingPanel(focusOpts types.OnFocusOpts) error {
 	mainContext := gui.State.Contexts.Staging
 	secondaryContext := gui.State.Contexts.StagingSecondary
 
-	file := gui.getSelectedFile()
+	var file *models.File
+	node := gui.State.Contexts.Files.GetSelected()
+	if node != nil {
+		file = node.File
+	}
+
 	if file == nil || (!file.HasUnstagedChanges && !file.HasStagedChanges) {
 		return gui.handleStagingEscape()
 	}
@@ -700,25 +709,6 @@ func (gui *Gui) refreshPatchBuildingPanel(opts types.OnFocusOpts) error {
 		Secondary: &types.ViewUpdateOpts{
 			Task:  types.NewRenderStringWithoutScrollTask(secondaryDiff),
 			Title: gui.Tr.CustomPatch,
-		},
-	})
-}
-
-func (gui *Gui) refreshMergePanel(isFocused bool) error {
-	content := gui.State.Contexts.MergeConflicts.GetContentToRender(isFocused)
-
-	var task types.UpdateTask
-	if gui.State.Contexts.MergeConflicts.IsUserScrolling() {
-		task = types.NewRenderStringWithoutScrollTask(content)
-	} else {
-		originY := gui.State.Contexts.MergeConflicts.GetOriginY()
-		task = types.NewRenderStringWithScrollTask(content, 0, originY)
-	}
-
-	return gui.c.RenderToMainViews(types.RefreshMainOpts{
-		Pair: gui.c.MainViewPairs().MergeConflicts,
-		Main: &types.ViewUpdateOpts{
-			Task: task,
 		},
 	})
 }

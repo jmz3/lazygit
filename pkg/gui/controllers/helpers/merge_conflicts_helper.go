@@ -113,3 +113,22 @@ func (self *MergeConflictsHelper) SwitchToMerge(path string) error {
 func (self *MergeConflictsHelper) context() *context.MergeConflictsContext {
 	return self.contexts.MergeConflicts
 }
+
+func (self *MergeConflictsHelper) Render(isFocused bool) error {
+	content := self.context().GetContentToRender(isFocused)
+
+	var task types.UpdateTask
+	if self.context().IsUserScrolling() {
+		task = types.NewRenderStringWithoutScrollTask(content)
+	} else {
+		originY := self.context().GetOriginY()
+		task = types.NewRenderStringWithScrollTask(content, 0, originY)
+	}
+
+	return self.c.RenderToMainViews(types.RefreshMainOpts{
+		Pair: self.c.MainViewPairs().MergeConflicts,
+		Main: &types.ViewUpdateOpts{
+			Task: task,
+		},
+	})
+}

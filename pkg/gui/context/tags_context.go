@@ -11,7 +11,10 @@ type TagsContext struct {
 	*ListContextTrait
 }
 
-var _ types.IListContext = (*TagsContext)(nil)
+var (
+	_ types.IListContext    = (*TagsContext)(nil)
+	_ types.DiffableContext = (*TagsContext)(nil)
+)
 
 func NewTagsContext(
 	getModel func() []*models.Tag,
@@ -19,7 +22,6 @@ func NewTagsContext(
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
 	onFocus func(types.OnFocusOpts) error,
-	onRenderToMain func() error,
 	onFocusLost func(opts types.OnFocusLostOpts) error,
 
 	c *types.HelperCommon,
@@ -36,9 +38,8 @@ func NewTagsContext(
 				Kind:       types.SIDE_CONTEXT,
 				Focusable:  true,
 			}), ContextCallbackOpts{
-				OnFocus:        onFocus,
-				OnFocusLost:    onFocusLost,
-				OnRenderToMain: onRenderToMain,
+				OnFocus:     onFocus,
+				OnFocusLost: onFocusLost,
 			}),
 			list:              viewModel,
 			getDisplayStrings: getDisplayStrings,
@@ -62,4 +63,10 @@ func (self *TagsContext) GetSelectedRef() types.Ref {
 		return nil
 	}
 	return tag
+}
+
+func (self *TagsContext) GetDiffTerminals() []string {
+	itemId := self.GetSelectedItemId()
+
+	return []string{itemId}
 }

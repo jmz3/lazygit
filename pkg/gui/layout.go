@@ -226,13 +226,13 @@ func (gui *Gui) onInitialViewsCreation() error {
 	}
 
 	if gui.showRecentRepos {
-		if err := gui.handleCreateRecentReposMenu(); err != nil {
+		if err := gui.helpers.Repos.CreateRecentReposMenu(); err != nil {
 			return err
 		}
 		gui.showRecentRepos = false
 	}
 
-	gui.Updater.CheckForNewUpdate(gui.onBackgroundUpdateCheckFinish, false)
+	gui.helpers.Update.CheckForUpdateInBackground()
 
 	gui.waitForIntro.Done()
 

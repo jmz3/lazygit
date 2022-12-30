@@ -107,11 +107,6 @@ type Gui struct {
 
 	Views types.Views
 
-	// if we've suspended the gui (e.g. because we've switched to a subprocess)
-	// we typically want to pause some things that are running like background
-	// file refreshes
-	PauseBackgroundThreads bool
-
 	// Log of the commands that get run, to be displayed to the user.
 	CmdLog []string
 
@@ -141,8 +136,44 @@ type Gui struct {
 	// process
 	InitialDir string
 
+	BackgroundRoutineMgr *BackgroundRoutineMgr
+	// for accessing the gui's state from outside this package
+	stateAccessor *StateAccessor
+
+	Updating bool
+
 	c       *types.HelperCommon
 	helpers *helpers.Helpers
+}
+
+type StateAccessor struct {
+	gui *Gui
+}
+
+var _ types.IStateAccessor = new(StateAccessor)
+
+func (self *StateAccessor) GetIgnoreWhitespaceInDiffView() bool {
+	return self.gui.IgnoreWhitespaceInDiffView
+}
+
+func (self *StateAccessor) SetIgnoreWhitespaceInDiffView(value bool) {
+	self.gui.IgnoreWhitespaceInDiffView = value
+}
+
+func (self *StateAccessor) GetRepoPathStack() *utils.StringStack {
+	return self.gui.RepoPathStack
+}
+
+func (self *StateAccessor) GetUpdating() bool {
+	return self.gui.Updating
+}
+
+func (self *StateAccessor) SetUpdating(value bool) {
+	self.gui.Updating = value
+}
+
+func (self *StateAccessor) GetRepoState() types.IRepoStateAccessor {
+	return self.gui.State
 }
 
 // we keep track of some stuff from one render to the next to see if certain
@@ -160,7 +191,6 @@ type GuiRepoState struct {
 	// Suggestions will sometimes appear when typing into a prompt
 	Suggestions []*types.Suggestion
 
-	Updating       bool
 	SplitMainPanel bool
 	LimitCommits   bool
 
@@ -188,6 +218,12 @@ type GuiRepoState struct {
 	ScreenMode WindowMaximisation
 
 	CurrentPopupOpts *types.CreatePopupPanelOpts
+}
+
+var _ types.IRepoStateAccessor = new(GuiRepoState)
+
+func (self *GuiRepoState) GetViewsSetup() bool {
+	return self.ViewsSetup
 }
 
 type searchingState struct {
@@ -415,6 +451,9 @@ func NewGui(
 	icons.SetIconEnabled(gui.UserConfig.Gui.ShowIcons)
 	presentation.SetCustomBranches(gui.UserConfig.Gui.BranchColors)
 
+	gui.BackgroundRoutineMgr = &BackgroundRoutineMgr{gui: gui}
+	gui.stateAccessor = &StateAccessor{gui: gui}
+
 	return gui, nil
 }
 
@@ -525,7 +564,7 @@ func (gui *Gui) Run(startArgs appTypes.StartArgs) error {
 
 	gui.waitForIntro.Add(1)
 
-	gui.startBackgroundRoutines()
+	gui.BackgroundRoutineMgr.startBackgroundRoutines()
 
 	gui.c.Log.Info("starting main loop")
 
@@ -551,11 +590,11 @@ func (gui *Gui) RunAndHandleError(startArgs appTypes.StartArgs) error {
 			switch err {
 			case gocui.ErrQuit:
 				if gui.RetainOriginalDir {
-					if err := gui.recordDirectory(gui.InitialDir); err != nil {
+					if err := gui.helpers.RecordDirectory.RecordDirectory(gui.InitialDir); err != nil {
 						return err
 					}
 				} else {
-					if err := gui.recordCurrentDirectory(); err != nil {
+					if err := gui.helpers.RecordDirectory.RecordCurrentDirectory(); err != nil {
 						return err
 					}
 				}
@@ -625,15 +664,14 @@ func (gui *Gui) runSubprocessWithSuspense(subprocess oscommands.ICmdObj) (bool, 
 		return false, gui.c.Error(err)
 	}
 
-	gui.PauseBackgroundThreads = true
+	gui.BackgroundRoutineMgr.PauseBackgroundThreads(true)
+	defer gui.BackgroundRoutineMgr.PauseBackgroundThreads(false)
 
 	cmdErr := gui.runSubprocess(subprocess)
 
 	if err := gui.g.Resume(); err != nil {
 		return false, err
 	}
-
-	gui.PauseBackgroundThreads = false
 
 	if cmdErr != nil {
 		return false, gui.c.Error(cmdErr)

@@ -18,7 +18,6 @@ func NewSuggestionsContext(
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
 	onFocus func(types.OnFocusOpts) error,
-	onRenderToMain func() error,
 	onFocusLost func(opts types.OnFocusLostOpts) error,
 
 	c *types.HelperCommon,
@@ -36,9 +35,8 @@ func NewSuggestionsContext(
 				Focusable:             true,
 				HasUncontrolledBounds: true,
 			}), ContextCallbackOpts{
-				OnFocus:        onFocus,
-				OnFocusLost:    onFocusLost,
-				OnRenderToMain: onRenderToMain,
+				OnFocus:     onFocus,
+				OnFocusLost: onFocusLost,
 			}),
 			list:              viewModel,
 			getDisplayStrings: getDisplayStrings,

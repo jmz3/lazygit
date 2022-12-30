@@ -13,7 +13,10 @@ type CommitFilesContext struct {
 	*DynamicTitleBuilder
 }
 
-var _ types.IListContext = (*CommitFilesContext)(nil)
+var (
+	_ types.IListContext    = (*CommitFilesContext)(nil)
+	_ types.DiffableContext = (*CommitFilesContext)(nil)
+)
 
 func NewCommitFilesContext(
 	getModel func() []*models.CommitFile,
@@ -21,7 +24,6 @@ func NewCommitFilesContext(
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
 	onFocus func(types.OnFocusOpts) error,
-	onRenderToMain func() error,
 	onFocusLost func(opts types.OnFocusLostOpts) error,
 
 	c *types.HelperCommon,
@@ -42,9 +44,8 @@ func NewCommitFilesContext(
 					Transient:  true,
 				}),
 				ContextCallbackOpts{
-					OnFocus:        onFocus,
-					OnFocusLost:    onFocusLost,
-					OnRenderToMain: onRenderToMain,
+					OnFocus:     onFocus,
+					OnFocusLost: onFocusLost,
 				}),
 			list:              viewModel,
 			getDisplayStrings: getDisplayStrings,
@@ -60,4 +61,51 @@ func (self *CommitFilesContext) GetSelectedItemId() string {
 	}
 
 	return item.ID()
+}
+
+func (self *CommitFilesContext) GetDiffTerminals() []string {
+	return []string{self.GetRef().RefName()}
+}
+
+func (self *CommitFilesContext) renderToMain() error {
+	node := self.GetSelected()
+	if node == nil {
+		return nil
+	}
+
+	ref := self.GetRef()
+	to := ref.RefName()
+	from, reverse := self.c.Modes().Diffing.GetFromAndReverseArgsForDiff(ref.ParentRefName())
+
+	cmdObj := self.c.Git().WorkingTree.ShowFileDiffCmdObj(
+		from, to, reverse, node.GetPath(), false, self.c.State().GetIgnoreWhitespaceInDiffView(),
+	)
+	task := types.NewRunPtyTask(cmdObj.GetCmd())
+
+	pair := self.c.MainViewPairs().Normal
+	if node.File != nil {
+		pair = self.c.MainViewPairs().PatchBuilding
+	}
+
+	return self.c.RenderToMainViews(types.RefreshMainOpts{
+		Pair: pair,
+		Main: &types.ViewUpdateOpts{
+			Title: self.c.Tr.Patch,
+			Task:  task,
+		},
+		Secondary: secondaryPatchPanelUpdateOpts(self.c),
+	})
+}
+
+func secondaryPatchPanelUpdateOpts(c *types.HelperCommon) *types.ViewUpdateOpts {
+	if c.Git().Patch.PatchBuilder.Active() {
+		patch := c.Git().Patch.PatchBuilder.RenderAggregatedPatch(false)
+
+		return &types.ViewUpdateOpts{
+			Task:  types.NewRenderStringWithoutScrollTask(patch),
+			Title: c.Tr.CustomPatch,
+		}
+	}
+
+	return nil
 }

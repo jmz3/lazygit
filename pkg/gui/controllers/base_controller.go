@@ -18,3 +18,7 @@ func (self *baseController) GetMouseKeybindings(opts types.KeybindingsOpts) []*g
 func (self *baseController) GetOnClick() func() error {
 	return nil
 }
+
+func (self *baseController) GetOnRenderToMain() func() error {
+	return nil
+}

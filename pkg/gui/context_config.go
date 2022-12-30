@@ -17,9 +17,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				Focusable:             false,
 				HasUncontrolledBounds: true, // setting to true because the global context doesn't even have a view
 			}),
-			context.ContextCallbackOpts{
-				OnRenderToMain: gui.statusRenderToMain,
-			},
+			context.ContextCallbackOpts{},
 		),
 		Status: context.NewSimpleContext(
 			context.NewBaseContext(context.NewBaseContextOpts{
@@ -29,9 +27,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				Key:        context.STATUS_CONTEXT_KEY,
 				Focusable:  true,
 			}),
-			context.ContextCallbackOpts{
-				OnRenderToMain: gui.statusRenderToMain,
-			},
+			context.ContextCallbackOpts{},
 		),
 		Snake: context.NewSimpleContext(
 			context.NewBaseContext(context.NewBaseContextOpts{
@@ -185,7 +181,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				OnFocus: OnFocusWrapper(func() error {
 					gui.Views.MergeConflicts.Wrap = false
 
-					return gui.refreshMergePanel(true)
+					return gui.helpers.MergeConflicts.Render(true)
 				}),
 				OnFocusLost: func(opts types.OnFocusLostOpts) error {
 					gui.State.Contexts.MergeConflicts.SetUserScrolling(false)
