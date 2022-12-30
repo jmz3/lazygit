@@ -10,7 +10,6 @@ import (
 	"github.com/jesseduffield/lazygit/pkg/gui/modes/cherrypicking"
 	"github.com/jesseduffield/lazygit/pkg/gui/services/custom_commands"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/snake"
 )
 
 func (gui *Gui) resetControllers() {
@@ -52,6 +51,7 @@ func (gui *Gui) resetControllers() {
 		),
 		Upstream:    helpers.NewUpstreamHelper(helperCommon, model, suggestionsHelper.GetRemoteBranchesSuggestionsFunc),
 		AmendHelper: helpers.NewAmendHelper(helperCommon, gui.git, gpgHelper),
+		Snake:       helpers.NewSnakeHelper(helperCommon),
 	}
 
 	gui.CustomCommandsClient = custom_commands.NewClient(
@@ -137,7 +137,7 @@ func (gui *Gui) resetControllers() {
 	stagingController := controllers.NewStagingController(common, gui.State.Contexts.Staging, gui.State.Contexts.StagingSecondary, false)
 	stagingSecondaryController := controllers.NewStagingController(common, gui.State.Contexts.StagingSecondary, gui.State.Contexts.Staging, true)
 	patchBuildingController := controllers.NewPatchBuildingController(common)
-	snakeController := controllers.NewSnakeController(common, func() *snake.Game { return gui.snakeGame })
+	snakeController := controllers.NewSnakeController(common)
 
 	setSubCommits := func(commits []*models.Commit) {
 		gui.Mutexes.SubCommitsMutex.Lock()

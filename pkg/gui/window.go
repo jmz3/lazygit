@@ -56,7 +56,7 @@ func (gui *Gui) setWindowContext(c types.Context) {
 }
 
 func (gui *Gui) currentWindow() string {
-	return gui.currentContext().GetWindowName()
+	return gui.c.CurrentContext().GetWindowName()
 }
 
 // assumes the context's windowName has been set to the new window if necessary

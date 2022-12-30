@@ -43,11 +43,11 @@ func (gui *Gui) contextTree() *context.ContextTree {
 			}),
 			context.ContextCallbackOpts{
 				OnFocus: func(opts types.OnFocusOpts) error {
-					gui.startSnake()
+					gui.helpers.Snake.StartGame()
 					return nil
 				},
 				OnFocusLost: func(opts types.OnFocusLostOpts) error {
-					gui.snakeGame.Exit()
+					gui.helpers.Snake.ExitGame()
 					gui.moveToTopOfWindow(gui.State.Contexts.Submodules)
 					return nil
 				},

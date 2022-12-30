@@ -215,7 +215,7 @@ func (self *WindowArranger) getExtrasWindowSize(screenHeight int) int {
 	}
 
 	var baseSize int
-	if self.gui.currentStaticContext().GetKey() == context.COMMAND_LOG_CONTEXT_KEY {
+	if self.gui.c.CurrentStaticContext().GetKey() == context.COMMAND_LOG_CONTEXT_KEY {
 		baseSize = 1000 // my way of saying 'fill the available space'
 	} else if screenHeight < 40 {
 		baseSize = 1
@@ -232,12 +232,12 @@ func (self *WindowArranger) getExtrasWindowSize(screenHeight int) int {
 // the default behaviour when accordion mode is NOT in effect. If it is in effect
 // then when it's accessed it will have weight 2, not 1.
 func (self *WindowArranger) getDefaultStashWindowBox() *boxlayout.Box {
-	self.gui.State.ContextManager.RLock()
-	defer self.gui.State.ContextManager.RUnlock()
+	self.gui.State.ContextMgr.RLock()
+	defer self.gui.State.ContextMgr.RUnlock()
 
 	box := &boxlayout.Box{Window: "stash"}
 	stashWindowAccessed := false
-	for _, context := range self.gui.State.ContextManager.ContextStack {
+	for _, context := range self.gui.State.ContextMgr.ContextStack {
 		if context.GetWindowName() == "stash" {
 			stashWindowAccessed = true
 		}
@@ -332,12 +332,12 @@ func (self *WindowArranger) sidePanelChildren(width int, height int) []*boxlayou
 
 func (self *WindowArranger) currentSideWindowName() string {
 	// there is always one and only one cyclable context in the context stack. We'll look from top to bottom
-	self.gui.State.ContextManager.RLock()
-	defer self.gui.State.ContextManager.RUnlock()
+	self.gui.State.ContextMgr.RLock()
+	defer self.gui.State.ContextMgr.RUnlock()
 
-	for idx := range self.gui.State.ContextManager.ContextStack {
-		reversedIdx := len(self.gui.State.ContextManager.ContextStack) - 1 - idx
-		context := self.gui.State.ContextManager.ContextStack[reversedIdx]
+	for idx := range self.gui.State.ContextMgr.ContextStack {
+		reversedIdx := len(self.gui.State.ContextMgr.ContextStack) - 1 - idx
+		context := self.gui.State.ContextMgr.ContextStack[reversedIdx]
 
 		if context.GetKind() == types.SIDE_CONTEXT {
 			return context.GetWindowName()

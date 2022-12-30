@@ -1,8 +1,7 @@
 package gui
 
 import (
-	"errors"
-
+	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
 	"github.com/jesseduffield/lazygit/pkg/config"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
@@ -41,17 +40,7 @@ func (self *guiCommon) RunSubprocess(cmdObj oscommands.ICmdObj) (bool, error) {
 }
 
 func (self *guiCommon) PushContext(context types.Context, opts ...types.OnFocusOpts) error {
-	singleOpts := types.OnFocusOpts{}
-	if len(opts) > 0 {
-		// using triple dot but you should only ever pass one of these opt structs
-		if len(opts) > 1 {
-			return errors.New("cannot pass multiple opts to pushContext")
-		}
-
-		singleOpts = opts[0]
-	}
-
-	return self.gui.pushContext(context, singleOpts)
+	return self.gui.pushContext(context, opts...)
 }
 
 func (self *guiCommon) PopContext() error {
@@ -70,6 +59,10 @@ func (self *guiCommon) CurrentStaticContext() types.Context {
 	return self.gui.currentStaticContext()
 }
 
+func (self *guiCommon) CurrentSideContext() types.Context {
+	return self.gui.currentSideContext()
+}
+
 func (self *guiCommon) IsCurrentContext(c types.Context) bool {
 	return self.CurrentContext().GetKey() == c.GetKey()
 }
@@ -82,12 +75,24 @@ func (self *guiCommon) SaveAppState() error {
 	return self.gui.Config.SaveAppState()
 }
 
+func (self *guiCommon) RenderString(view *gocui.View, content string) error {
+	return self.gui.renderString(view, content)
+}
+
 func (self *guiCommon) Render() {
 	self.gui.render()
 }
 
+func (self *guiCommon) Views() types.Views {
+	return self.gui.Views
+}
+
 func (self *guiCommon) OpenSearch() {
 	_ = self.gui.handleOpenSearch(self.gui.currentViewName())
+}
+
+func (self *guiCommon) GocuiGui() *gocui.Gui {
+	return self.gui.g
 }
 
 func (self *guiCommon) OnUIThread(f func() error) {

@@ -278,7 +278,7 @@ func (self *Gui) refreshTags() error {
 
 	self.State.Model.Tags = tags
 
-	return self.postRefreshUpdate(self.State.Contexts.Tags)
+	return self.c.PostRefreshUpdate(self.State.Contexts.Tags)
 }
 
 func (gui *Gui) refreshStateSubmoduleConfigs() error {
@@ -357,7 +357,7 @@ func (gui *Gui) refreshMergeState() error {
 	gui.State.Contexts.MergeConflicts.GetMutex().Lock()
 	defer gui.State.Contexts.MergeConflicts.GetMutex().Unlock()
 
-	if gui.currentContext().GetKey() != context.MERGE_CONFLICTS_CONTEXT_KEY {
+	if gui.c.CurrentContext().GetKey() != context.MERGE_CONFLICTS_CONTEXT_KEY {
 		return nil
 	}
 
@@ -530,7 +530,7 @@ func (gui *Gui) refreshStashEntries() error {
 	gui.State.Model.StashEntries = gui.git.Loaders.StashLoader.
 		GetStashEntries(gui.State.Modes.Filtering.GetPath())
 
-	return gui.postRefreshUpdate(gui.State.Contexts.Stash)
+	return gui.c.PostRefreshUpdate(gui.State.Contexts.Stash)
 }
 
 // never call this on its own, it should only be called from within refreshCommits()
@@ -644,7 +644,7 @@ func (gui *Gui) handleStagingEscape() error {
 }
 
 func (gui *Gui) secondaryStagingFocused() bool {
-	return gui.currentStaticContext().GetKey() == gui.State.Contexts.StagingSecondary.GetKey()
+	return gui.c.CurrentStaticContext().GetKey() == gui.State.Contexts.StagingSecondary.GetKey()
 }
 
 func (gui *Gui) refreshPatchBuildingPanel(opts types.OnFocusOpts) error {

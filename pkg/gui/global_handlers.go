@@ -163,7 +163,17 @@ func (gui *Gui) handleRefresh() error {
 
 func (gui *Gui) handleCopySelectedSideContextItemToClipboard() error {
 	// important to note that this assumes we've selected an item in a side context
-	itemId := gui.getSideContextSelectedItemId()
+	currentSideContext := gui.c.CurrentSideContext()
+	if currentSideContext == nil {
+		return nil
+	}
+
+	listContext, ok := currentSideContext.(types.IListContext)
+	if !ok {
+		return nil
+	}
+
+	itemId := listContext.GetSelectedItemId()
 
 	if itemId == "" {
 		return nil
@@ -179,4 +189,14 @@ func (gui *Gui) handleCopySelectedSideContextItemToClipboard() error {
 	gui.c.Toast(fmt.Sprintf("'%s' %s", truncatedItemId, gui.c.Tr.LcCopiedToClipboard))
 
 	return nil
+}
+
+func (gui *Gui) rerenderView(view *gocui.View) error {
+	context, ok := gui.contextForView(view.Name())
+	if !ok {
+		gui.Log.Errorf("no context found for view %s", view.Name())
+		return nil
+	}
+
+	return context.HandleRender()
 }

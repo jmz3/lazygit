@@ -39,7 +39,7 @@ func (gui *Gui) handleQuit() error {
 }
 
 func (gui *Gui) handleTopLevelReturn() error {
-	currentContext := gui.currentContext()
+	currentContext := gui.c.CurrentContext()
 
 	parentContext, hasParent := currentContext.GetParentContext()
 	if hasParent && currentContext != nil && parentContext != nil {

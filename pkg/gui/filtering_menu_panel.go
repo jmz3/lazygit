@@ -9,7 +9,7 @@ import (
 
 func (gui *Gui) handleCreateFilteringMenuPanel() error {
 	fileName := ""
-	switch gui.currentSideListContext() {
+	switch gui.c.CurrentSideContext() {
 	case gui.State.Contexts.Files:
 		node := gui.getSelectedFileNode()
 		if node != nil {

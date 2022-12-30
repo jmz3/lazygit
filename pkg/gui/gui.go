@@ -33,7 +33,6 @@ import (
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/lazygit/pkg/integration/components"
 	integrationTypes "github.com/jesseduffield/lazygit/pkg/integration/types"
-	"github.com/jesseduffield/lazygit/pkg/snake"
 	"github.com/jesseduffield/lazygit/pkg/tasks"
 	"github.com/jesseduffield/lazygit/pkg/theme"
 	"github.com/jesseduffield/lazygit/pkg/updates"
@@ -58,20 +57,6 @@ const StartupPopupVersion = 5
 
 // OverlappingEdges determines if panel edges overlap
 var OverlappingEdges = false
-
-type ContextManager struct {
-	ContextStack []types.Context
-	sync.RWMutex
-	gui *Gui
-}
-
-func NewContextManager(initialContext types.Context, gui *Gui) ContextManager {
-	return ContextManager{
-		ContextStack: []types.Context{},
-		RWMutex:      sync.RWMutex{},
-		gui:          gui,
-	}
-}
 
 type Repo string
 
@@ -120,7 +105,7 @@ type Gui struct {
 	// this tells us whether our views have been initially set up
 	ViewsSetup bool
 
-	Views Views
+	Views types.Views
 
 	// if we've suspended the gui (e.g. because we've switched to a subprocess)
 	// we typically want to pause some things that are running like background
@@ -158,8 +143,6 @@ type Gui struct {
 
 	c       *types.HelperCommon
 	helpers *helpers.Helpers
-
-	snakeGame *snake.Game
 }
 
 // we keep track of some stuff from one render to the next to see if certain
@@ -185,8 +168,8 @@ type GuiRepoState struct {
 	Searching         searchingState
 	StartupStage      StartupStage // Allows us to not load everything at once
 
-	ContextManager ContextManager
-	Contexts       *context.ContextTree
+	ContextMgr ContextMgr
+	Contexts   *context.ContextTree
 
 	// WindowViewNameMap is a mapping of windows to the current view of that window.
 	// Some views move between windows for example the commitFiles view and when cycling through
@@ -301,7 +284,7 @@ func (gui *Gui) resetState(startArgs appTypes.StartArgs, reuseState bool) {
 		},
 		ScreenMode: initialScreenMode,
 		// TODO: put contexts in the context manager
-		ContextManager:    NewContextManager(initialContext, gui),
+		ContextMgr:        NewContextMgr(initialContext, gui),
 		Contexts:          contextTree,
 		WindowViewNameMap: initialWindowViewNameMap,
 	}
@@ -763,4 +746,28 @@ func (gui *Gui) startBackgroundRoutines() {
 func (gui *Gui) getWindowDimensions(informationStr string, appStatus string) map[string]boxlayout.Dimensions {
 	windowArranger := &WindowArranger{gui: gui}
 	return windowArranger.getWindowDimensions(informationStr, appStatus)
+}
+
+func (gui *Gui) replaceContext(c types.Context) error {
+	return gui.State.ContextMgr.replaceContext(c)
+}
+
+func (gui *Gui) pushContext(c types.Context, opts ...types.OnFocusOpts) error {
+	return gui.State.ContextMgr.pushContext(c, opts...)
+}
+
+func (gui *Gui) popContext() error {
+	return gui.State.ContextMgr.popContext()
+}
+
+func (gui *Gui) currentContext() types.Context {
+	return gui.State.ContextMgr.currentContext()
+}
+
+func (gui *Gui) currentSideContext() types.Context {
+	return gui.State.ContextMgr.currentSideContext()
+}
+
+func (gui *Gui) currentStaticContext() types.Context {
+	return gui.State.ContextMgr.currentStaticContext()
 }

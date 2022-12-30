@@ -15,6 +15,7 @@ type Helpers struct {
 	GPG            *GpgHelper
 	Upstream       *UpstreamHelper
 	AmendHelper    *AmendHelper
+	Snake          *SnakeHelper
 }
 
 func NewStubHelpers() *Helpers {
@@ -33,5 +34,6 @@ func NewStubHelpers() *Helpers {
 		GPG:            &GpgHelper{},
 		Upstream:       &UpstreamHelper{},
 		AmendHelper:    &AmendHelper{},
+		Snake:          &SnakeHelper{},
 	}
 }

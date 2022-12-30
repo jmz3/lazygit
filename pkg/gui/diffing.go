@@ -7,6 +7,7 @@ import (
 	"github.com/jesseduffield/lazygit/pkg/gui/context"
 	"github.com/jesseduffield/lazygit/pkg/gui/modes/diffing"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/samber/lo"
 )
 
 func (gui *Gui) exitDiffMode() error {
@@ -34,7 +35,7 @@ func (gui *Gui) renderDiff() error {
 // which becomes an option when you bring up the diff menu, but when you're just
 // flicking through branches it will be using the local branch name.
 func (gui *Gui) currentDiffTerminals() []string {
-	c := gui.currentSideContext()
+	c := gui.c.CurrentSideContext()
 
 	if c.GetKey() == "" {
 		return nil
@@ -75,12 +76,16 @@ func (gui *Gui) currentDiffTerminal() string {
 }
 
 func (gui *Gui) currentlySelectedFilename() string {
-	switch gui.currentContext().GetKey() {
-	case context.FILES_CONTEXT_KEY, context.COMMIT_FILES_CONTEXT_KEY:
-		return gui.getSideContextSelectedItemId()
-	default:
-		return ""
+	currentContext := gui.c.CurrentContext()
+
+	switch currentContext := currentContext.(type) {
+	case types.IListContext:
+		if lo.Contains([]types.ContextKey{context.FILES_CONTEXT_KEY, context.COMMIT_FILES_CONTEXT_KEY}, currentContext.GetKey()) {
+			return currentContext.GetSelectedItemId()
+		}
 	}
+
+	return ""
 }
 
 func (gui *Gui) diffStr() string {

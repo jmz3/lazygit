@@ -49,7 +49,7 @@ func (gui *Gui) handleCreatePatchOptionsMenu() error {
 			},
 		}...)
 
-		if gui.currentContext().GetKey() == gui.State.Contexts.LocalCommits.GetKey() {
+		if gui.c.CurrentContext().GetKey() == gui.State.Contexts.LocalCommits.GetKey() {
 			selectedCommit := gui.getSelectedLocalCommit()
 			if selectedCommit != nil && gui.git.Patch.PatchBuilder.To != selectedCommit.Sha {
 				// adding this option to index 1
@@ -97,7 +97,7 @@ func (gui *Gui) validateNormalWorkingTreeState() (bool, error) {
 }
 
 func (gui *Gui) returnFocusFromPatchExplorerIfNecessary() error {
-	if gui.currentContext().GetKey() == gui.State.Contexts.CustomPatchBuilder.GetKey() {
+	if gui.c.CurrentContext().GetKey() == gui.State.Contexts.CustomPatchBuilder.GetKey() {
 		return gui.helpers.PatchBuilding.Escape()
 	}
 	return nil

@@ -8,20 +8,16 @@ import (
 type SnakeController struct {
 	baseController
 	*controllerCommon
-
-	getGame func() *snake.Game
 }
 
 var _ types.IController = &SnakeController{}
 
 func NewSnakeController(
 	common *controllerCommon,
-	getGame func() *snake.Game,
 ) *SnakeController {
 	return &SnakeController{
 		baseController:   baseController{},
 		controllerCommon: common,
-		getGame:          getGame,
 	}
 }
 
@@ -58,7 +54,7 @@ func (self *SnakeController) Context() types.Context {
 
 func (self *SnakeController) SetDirection(direction snake.Direction) func() error {
 	return func() error {
-		self.getGame().SetDirection(direction)
+		self.helpers.Snake.SetDirection(direction)
 		return nil
 	}
 }

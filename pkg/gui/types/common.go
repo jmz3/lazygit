@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
 	"github.com/jesseduffield/lazygit/pkg/commands/models"
 	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
@@ -27,6 +28,10 @@ type IGuiCommon interface {
 	// e.g. expanding or collapsing a folder in a file view. Calling 'Refresh' in this
 	// case would be overkill, although refresh will internally call 'PostRefreshUpdate'
 	PostRefreshUpdate(Context) error
+
+	// renders a string to a view and resets its origin. Does not explicitly cause the screen itself to re-render.
+	RenderString(view *gocui.View, content string) error
+
 	// this just re-renders the screen
 	Render()
 	// allows rendering to main views (i.e. the ones to the right of the side panel)
@@ -45,6 +50,7 @@ type IGuiCommon interface {
 	ReplaceContext(context Context) error
 	CurrentContext() Context
 	CurrentStaticContext() Context
+	CurrentSideContext() Context
 	IsCurrentContext(Context) bool
 	// enters search mode for the current view
 	OpenSearch()
@@ -56,6 +62,12 @@ type IGuiCommon interface {
 	// Only necessary to call if you're not already on the UI thread i.e. you're inside a goroutine.
 	// All controller handlers are executed on the UI thread.
 	OnUIThread(f func() error)
+
+	// returns the gocui Gui struct. There is a good chance you don't actually want to use
+	// this struct and instead want to use another method above
+	GocuiGui() *gocui.Gui
+
+	Views() Views
 }
 
 type IPopupHandler interface {
