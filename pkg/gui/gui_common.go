@@ -58,6 +58,10 @@ func (self *guiCommon) PopContext() error {
 	return self.gui.popContext()
 }
 
+func (self *guiCommon) ReplaceContext(context types.Context) error {
+	return self.gui.replaceContext(context)
+}
+
 func (self *guiCommon) CurrentContext() types.Context {
 	return self.gui.currentContext()
 }

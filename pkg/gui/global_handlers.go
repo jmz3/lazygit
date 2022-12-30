@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/lazygit/pkg/utils"
 )
@@ -160,14 +159,6 @@ func (gui *Gui) scrollDownConfirmationPanel() error {
 
 func (gui *Gui) handleRefresh() error {
 	return gui.c.Refresh(types.RefreshOptions{Mode: types.ASYNC})
-}
-
-func (gui *Gui) backgroundFetch() (err error) {
-	err = gui.git.Sync.Fetch(git_commands.FetchOptions{Background: true})
-
-	_ = gui.c.Refresh(types.RefreshOptions{Scope: []types.RefreshableView{types.BRANCHES, types.COMMITS, types.REMOTES, types.TAGS}, Mode: types.ASYNC})
-
-	return err
 }
 
 func (gui *Gui) handleCopySelectedSideContextItemToClipboard() error {

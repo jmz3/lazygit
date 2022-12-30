@@ -251,7 +251,7 @@ func (gui *Gui) setKeyBindings(cancel context.CancelFunc, opts types.CreatePopup
 			Key:      keybindings.GetKey(keybindingConfig.Universal.TogglePanel),
 			Handler: func() error {
 				if len(gui.State.Suggestions) > 0 {
-					return gui.replaceContext(gui.State.Contexts.Suggestions)
+					return gui.c.ReplaceContext(gui.State.Contexts.Suggestions)
 				}
 				return nil
 			},
@@ -269,7 +269,7 @@ func (gui *Gui) setKeyBindings(cancel context.CancelFunc, opts types.CreatePopup
 		{
 			ViewName: "suggestions",
 			Key:      keybindings.GetKey(keybindingConfig.Universal.TogglePanel),
-			Handler:  func() error { return gui.replaceContext(gui.State.Contexts.Confirmation) },
+			Handler:  func() error { return gui.c.ReplaceContext(gui.State.Contexts.Confirmation) },
 		},
 	}
 

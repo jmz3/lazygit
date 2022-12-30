@@ -42,6 +42,7 @@ type IGuiCommon interface {
 
 	PushContext(context Context, opts ...OnFocusOpts) error
 	PopContext() error
+	ReplaceContext(context Context) error
 	CurrentContext() Context
 	CurrentStaticContext() Context
 	IsCurrentContext(Context) bool

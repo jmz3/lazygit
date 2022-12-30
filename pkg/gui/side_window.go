@@ -59,3 +59,7 @@ func (gui *Gui) goToSideWindow(window string) func() error {
 		return gui.c.PushContext(context)
 	}
 }
+
+func (gui *Gui) getCyclableWindows() []string {
+	return []string{"status", "files", "branches", "commits", "stash"}
+}

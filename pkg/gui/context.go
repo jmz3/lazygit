@@ -16,15 +16,8 @@ import (
 // you in the menu context. When contexts are activated/deactivated certain things need
 // to happen like showing/hiding views and rendering content.
 
-func (gui *Gui) popupViewNames() []string {
-	popups := slices.Filter(gui.State.Contexts.Flatten(), func(c types.Context) bool {
-		return c.GetKind() == types.PERSISTENT_POPUP || c.GetKind() == types.TEMPORARY_POPUP
-	})
-
-	return slices.Map(popups, func(c types.Context) string {
-		return c.GetViewName()
-	})
-}
+// func (gui *Gui) replaceContext(c types.Context) error {
+// }
 
 // use replaceContext when you don't want to return to the original context upon
 // hitting escape: you want to go that context's parent instead.
@@ -235,15 +228,6 @@ func (gui *Gui) renderOptionsMap(optionsMap map[string]string) {
 	_ = gui.renderString(gui.Views.Options, gui.optionsMapToString(optionsMap))
 }
 
-// // currently unused
-// func (gui *Gui) renderContextStack() string {
-// 	result := ""
-// 	for _, context := range gui.State.ContextManager.ContextStack {
-// 		result += string(context.GetKey()) + "\n"
-// 	}
-// 	return result
-// }
-
 func (gui *Gui) currentContext() types.Context {
 	gui.State.ContextManager.RLock()
 	defer gui.State.ContextManager.RUnlock()
@@ -320,14 +304,6 @@ func (gui *Gui) currentStaticContextWithoutLock() types.Context {
 	return gui.defaultSideContext()
 }
 
-func (gui *Gui) defaultSideContext() types.Context {
-	if gui.State.Modes.Filtering.Active() {
-		return gui.State.Contexts.LocalCommits
-	} else {
-		return gui.State.Contexts.Files
-	}
-}
-
 // getFocusLayout returns a manager function for when view gain and lose focus
 func (gui *Gui) getFocusLayout() func(g *gocui.Gui) error {
 	var previousView *gocui.View
@@ -357,12 +333,6 @@ func (gui *Gui) onViewFocusLost(oldView *gocui.View) error {
 	return nil
 }
 
-func (gui *Gui) TransientContexts() []types.Context {
-	return slices.Filter(gui.State.Contexts.Flatten(), func(context types.Context) bool {
-		return context.IsTransient()
-	})
-}
-
 func (gui *Gui) rerenderView(view *gocui.View) error {
 	context, ok := gui.contextForView(view.Name())
 	if !ok {
@@ -381,24 +351,3 @@ func (gui *Gui) getSideContextSelectedItemId() string {
 
 	return currentSideContext.GetSelectedItemId()
 }
-
-// currently unused
-// func (gui *Gui) getCurrentSideView() *gocui.View {
-// 	currentSideContext := gui.currentSideContext()
-// 	if currentSideContext == nil {
-// 		return nil
-// 	}
-
-// 	view, _ := gui.g.View(currentSideContext.GetViewName())
-
-// 	return view
-// }
-
-// currently unused
-// func (gui *Gui) renderContextStack() string {
-// 	result := ""
-// 	for _, context := range gui.State.ContextManager.ContextStack {
-// 		result += context.GetViewName() + "\n"
-// 	}
-// 	return result
-// }

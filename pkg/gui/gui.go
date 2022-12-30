@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/jesseduffield/gocui"
+	"github.com/jesseduffield/lazycore/pkg/boxlayout"
 	appTypes "github.com/jesseduffield/lazygit/pkg/app/types"
 	"github.com/jesseduffield/lazygit/pkg/commands"
 	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
@@ -61,12 +62,14 @@ var OverlappingEdges = false
 type ContextManager struct {
 	ContextStack []types.Context
 	sync.RWMutex
+	gui *Gui
 }
 
-func NewContextManager() ContextManager {
+func NewContextManager(initialContext types.Context, gui *Gui) ContextManager {
 	return ContextManager{
 		ContextStack: []types.Context{},
 		RWMutex:      sync.RWMutex{},
+		gui:          gui,
 	}
 }
 
@@ -298,7 +301,7 @@ func (gui *Gui) resetState(startArgs appTypes.StartArgs, reuseState bool) {
 		},
 		ScreenMode: initialScreenMode,
 		// TODO: put contexts in the context manager
-		ContextManager:    NewContextManager(),
+		ContextManager:    NewContextManager(initialContext, gui),
 		Contexts:          contextTree,
 		WindowViewNameMap: initialWindowViewNameMap,
 	}
@@ -750,4 +753,14 @@ func (gui *Gui) onUIThread(f func() error) {
 	gui.g.Update(func(*gocui.Gui) error {
 		return f()
 	})
+}
+
+func (gui *Gui) startBackgroundRoutines() {
+	mgr := &BackgroundRoutineMgr{gui: gui}
+	mgr.startBackgroundRoutines()
+}
+
+func (gui *Gui) getWindowDimensions(informationStr string, appStatus string) map[string]boxlayout.Dimensions {
+	windowArranger := &WindowArranger{gui: gui}
+	return windowArranger.getWindowDimensions(informationStr, appStatus)
 }
