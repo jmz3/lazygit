@@ -112,13 +112,13 @@ func (gui *Gui) scrollDownMain() error {
 }
 
 func (gui *Gui) mainView() *gocui.View {
-	viewName := gui.getViewNameForWindow("main")
+	viewName := gui.helpers.Window.GetViewNameForWindow("main")
 	view, _ := gui.g.View(viewName)
 	return view
 }
 
 func (gui *Gui) secondaryView() *gocui.View {
-	viewName := gui.getViewNameForWindow("secondary")
+	viewName := gui.helpers.Window.GetViewNameForWindow("secondary")
 	view, _ := gui.g.View(viewName)
 	return view
 }
@@ -192,7 +192,7 @@ func (gui *Gui) handleCopySelectedSideContextItemToClipboard() error {
 }
 
 func (gui *Gui) rerenderView(view *gocui.View) error {
-	context, ok := gui.contextForView(view.Name())
+	context, ok := gui.helpers.View.ContextForView(view.Name())
 	if !ok {
 		gui.Log.Errorf("no context found for view %s", view.Name())
 		return nil

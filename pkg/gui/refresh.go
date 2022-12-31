@@ -116,11 +116,11 @@ func (gui *Gui) Refresh(options types.RefreshOptions) error {
 		}
 
 		if scopeSet.Includes(types.FILES) || scopeSet.Includes(types.SUBMODULES) {
-			refresh(func() { _ = gui.refreshFilesAndSubmodules() })
+			refresh(func() { _ = gui.RefreshFilesAndSubmodules() })
 		}
 
 		if scopeSet.Includes(types.FILES) || scopeSet.Includes(types.SUBMODULES) {
-			refresh(func() { _ = gui.refreshFilesAndSubmodules() })
+			refresh(func() { _ = gui.RefreshFilesAndSubmodules() })
 		}
 
 		if scopeSet.Includes(types.STASH) {
@@ -210,7 +210,7 @@ func (gui *Gui) refreshCommits() {
 			// Ideally we would know when to refresh the commit files context and when not to,
 			// or perhaps we could just pop that context off the stack whenever cycling windows.
 			// For now the awkwardness remains.
-			commit := gui.getSelectedLocalCommit()
+			commit := gui.State.Contexts.LocalCommits.GetSelected()
 			if commit != nil {
 				gui.State.Contexts.CommitFiles.SetRef(commit)
 				gui.State.Contexts.CommitFiles.SetTitleRef(commit.RefName())
@@ -326,7 +326,7 @@ func (gui *Gui) refreshBranches() {
 	gui.refreshStatus()
 }
 
-func (gui *Gui) refreshFilesAndSubmodules() error {
+func (gui *Gui) RefreshFilesAndSubmodules() error {
 	gui.Mutexes.RefreshingFilesMutex.Lock()
 	gui.State.IsRefreshingFiles = true
 	defer func() {

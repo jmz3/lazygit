@@ -6,23 +6,17 @@ import (
 )
 
 type SimpleContext struct {
-	OnFocus     func(opts types.OnFocusOpts) error
-	OnFocusLost func(opts types.OnFocusLostOpts) error
-	OnRender    func() error
+	OnRender func() error
 
 	*BaseContext
 }
 
 type ContextCallbackOpts struct {
-	OnFocus     func(opts types.OnFocusOpts) error
-	OnFocusLost func(opts types.OnFocusLostOpts) error
-	OnRender    func() error
+	OnRender func() error
 }
 
 func NewSimpleContext(baseContext *BaseContext, opts ContextCallbackOpts) *SimpleContext {
 	return &SimpleContext{
-		OnFocus:     opts.OnFocus,
-		OnFocusLost: opts.OnFocusLost,
 		OnRender:    opts.OnRender,
 		BaseContext: baseContext,
 	}
@@ -50,8 +44,8 @@ func (self *SimpleContext) HandleFocus(opts types.OnFocusOpts) error {
 		self.GetViewTrait().SetHighlight(true)
 	}
 
-	if self.OnFocus != nil {
-		if err := self.OnFocus(opts); err != nil {
+	if self.onFocusFn != nil {
+		if err := self.onFocusFn(opts); err != nil {
 			return err
 		}
 	}
@@ -66,8 +60,8 @@ func (self *SimpleContext) HandleFocus(opts types.OnFocusOpts) error {
 }
 
 func (self *SimpleContext) HandleFocusLost(opts types.OnFocusLostOpts) error {
-	if self.OnFocusLost != nil {
-		return self.OnFocusLost(opts)
+	if self.onFocusLostFn != nil {
+		return self.onFocusLostFn(opts)
 	}
 	return nil
 }

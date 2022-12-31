@@ -12,6 +12,9 @@ import (
 	"github.com/samber/lo"
 )
 
+// after selecting the 200th commit, we'll load in all the rest
+const COMMIT_THRESHOLD = 200
+
 type (
 	PullFilesFn func() error
 )
@@ -790,6 +793,22 @@ func (self *LocalCommitsController) checkSelected(callback func(*models.Commit) 
 		}
 
 		return callback(commit)
+	}
+}
+
+func (self *LocalCommitsController) GetOnFocus() func() error {
+	return func() error {
+		context := self.context()
+		if context.GetSelectedLineIdx() > COMMIT_THRESHOLD && context.GetLimitCommits() {
+			context.SetLimitCommits(false)
+			go utils.Safe(func() {
+				if err := self.refreshCommitsWithLimit(); err != nil {
+					_ = self.c.Error(err)
+				}
+			})
+		}
+
+		return nil
 	}
 }
 

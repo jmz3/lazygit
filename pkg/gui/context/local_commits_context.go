@@ -21,9 +21,6 @@ func NewLocalCommitsContext(
 	view *gocui.View,
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
-	onFocus func(types.OnFocusOpts) error,
-	onFocusLost func(opts types.OnFocusLostOpts) error,
-
 	c *types.HelperCommon,
 ) *LocalCommitsContext {
 	viewModel := NewLocalCommitsViewModel(getModel, c)
@@ -38,10 +35,7 @@ func NewLocalCommitsContext(
 					Key:        LOCAL_COMMITS_CONTEXT_KEY,
 					Kind:       types.SIDE_CONTEXT,
 					Focusable:  true,
-				}), ContextCallbackOpts{
-					OnFocus:     onFocus,
-					OnFocusLost: onFocusLost,
-				}),
+				}), ContextCallbackOpts{}),
 				list:              viewModel,
 				getDisplayStrings: getDisplayStrings,
 				c:                 c,

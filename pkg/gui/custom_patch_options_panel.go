@@ -50,7 +50,7 @@ func (gui *Gui) handleCreatePatchOptionsMenu() error {
 		}...)
 
 		if gui.c.CurrentContext().GetKey() == gui.State.Contexts.LocalCommits.GetKey() {
-			selectedCommit := gui.getSelectedLocalCommit()
+			selectedCommit := gui.State.Contexts.LocalCommits.GetSelected()
 			if selectedCommit != nil && gui.git.Patch.PatchBuilder.To != selectedCommit.Sha {
 				// adding this option to index 1
 				menuItems = append(

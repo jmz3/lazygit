@@ -142,27 +142,12 @@ func (gui *Gui) onViewTabClick(windowName string, tabIndex int) error {
 
 	viewName := tabs[tabIndex].ViewName
 
-	context, ok := gui.contextForView(viewName)
+	context, ok := gui.helpers.View.ContextForView(viewName)
 	if !ok {
 		return nil
 	}
 
 	return gui.c.PushContext(context)
-}
-
-func (gui *Gui) contextForView(viewName string) (types.Context, bool) {
-	view, err := gui.g.View(viewName)
-	if err != nil {
-		return nil, false
-	}
-
-	for _, context := range gui.State.Contexts.Flatten() {
-		if context.GetViewName() == view.Name() {
-			return context, true
-		}
-	}
-
-	return nil, false
 }
 
 func (gui *Gui) handleNextTab() error {

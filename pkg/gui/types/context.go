@@ -74,6 +74,8 @@ type IBaseContext interface {
 	AddOnClickFn(func() error)
 
 	AddOnRenderToMainFn(func() error)
+	AddOnFocusFn(func(OnFocusOpts) error)
+	AddOnFocusLostFn(func(OnFocusLostOpts) error)
 }
 
 type Context interface {
@@ -163,6 +165,8 @@ type HasKeybindings interface {
 	GetMouseKeybindings(opts KeybindingsOpts) []*gocui.ViewMouseBinding
 	GetOnClick() func() error
 	GetOnRenderToMain() func() error
+	GetOnFocus() func(OnFocusOpts) error
+	GetOnFocusLost() func(OnFocusLostOpts) error
 }
 
 type IController interface {

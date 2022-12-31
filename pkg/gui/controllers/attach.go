@@ -8,5 +8,7 @@ func AttachControllers(context types.Context, controllers ...types.IController) 
 		context.AddMouseKeybindingsFn(controller.GetMouseKeybindings)
 		context.AddOnClickFn(controller.GetOnClick())
 		context.AddOnRenderToMainFn(controller.GetOnRenderToMain())
+		context.AddOnFocusFn(controller.GetOnFocus())
+		context.AddOnFocusLostFn(controller.GetOnFocusLost())
 	}
 }

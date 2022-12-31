@@ -96,7 +96,7 @@ func MergeMaps[K comparable, V any](maps ...map[K]V) map[K]V {
 }
 
 func (self *WindowArranger) mainSectionChildren() []*boxlayout.Box {
-	currentWindow := self.gui.currentWindow()
+	currentWindow := self.gui.helpers.Window.CurrentWindow()
 
 	// if we're not in split mode we can just show the one main panel. Likewise if
 	// the main panel is focused and we're in full-screen mode
@@ -122,7 +122,7 @@ func (self *WindowArranger) mainSectionChildren() []*boxlayout.Box {
 }
 
 func (self *WindowArranger) getMidSectionWeights() (int, int) {
-	currentWindow := self.gui.currentWindow()
+	currentWindow := self.gui.helpers.Window.CurrentWindow()
 
 	// we originally specified this as a ratio i.e. .20 would correspond to a weight of 1 against 4
 	sidePanelWidthRatio := self.gui.c.UserConfig.Gui.SidePanelWidth

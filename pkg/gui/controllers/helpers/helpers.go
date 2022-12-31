@@ -21,6 +21,8 @@ type Helpers struct {
 	Repos           *ReposHelper
 	RecordDirectory *RecordDirectoryHelper
 	Update          *UpdateHelper
+	Window          *WindowHelper
+	View            *ViewHelper
 }
 
 func NewStubHelpers() *Helpers {
@@ -44,5 +46,7 @@ func NewStubHelpers() *Helpers {
 		Repos:           &ReposHelper{},
 		RecordDirectory: &RecordDirectoryHelper{},
 		Update:          &UpdateHelper{},
+		Window:          &WindowHelper{},
+		View:            &ViewHelper{},
 	}
 }

@@ -65,15 +65,6 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 	}
 }
 
-func (gui *Gui) windowForView(viewName string) string {
-	context, ok := gui.contextForView(viewName)
-	if !ok {
-		panic("todo: deal with this")
-	}
-
-	return context.GetWindowName()
-}
-
 func (gui *Gui) createAllViews() error {
 	frameRunes := []rune{'─', '│', '┌', '┐', '└', '┘'}
 	switch gui.c.UserConfig.Gui.Border {

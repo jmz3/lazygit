@@ -30,6 +30,7 @@ func (gui *Gui) resetControllers() {
 		return gui.State.savedCommitMessage
 	}
 	gpgHelper := helpers.NewGpgHelper(helperCommon, gui.os, gui.git)
+	viewHelper := helpers.NewViewHelper(helperCommon, gui.State.Contexts)
 	recordDirectoryHelper := helpers.NewRecordDirectoryHelper(helperCommon)
 	gui.helpers = &helpers.Helpers{
 		Refs:           refsHelper,
@@ -57,6 +58,8 @@ func (gui *Gui) resetControllers() {
 		Repos:           helpers.NewRecentReposHelper(helperCommon, recordDirectoryHelper, gui.onNewRepo),
 		RecordDirectory: recordDirectoryHelper,
 		Update:          helpers.NewUpdateHelper(helperCommon, gui.Updater),
+		Window:          helpers.NewWindowHelper(helperCommon, viewHelper, gui.State.Contexts),
+		View:            viewHelper,
 	}
 
 	gui.CustomCommandsClient = custom_commands.NewClient(

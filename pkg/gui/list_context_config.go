@@ -34,8 +34,6 @@ func (gui *Gui) filesListContext() *context.WorkingTreeContext {
 				return []string{line}
 			})
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -47,8 +45,6 @@ func (gui *Gui) branchesListContext() *context.BranchesContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetBranchListDisplayStrings(gui.State.Model.Branches, gui.State.ScreenMode != SCREEN_NORMAL, gui.State.Modes.Diffing.Ref, gui.Tr)
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -60,8 +56,6 @@ func (gui *Gui) remotesListContext() *context.RemotesContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetRemoteListDisplayStrings(gui.State.Model.Remotes, gui.State.Modes.Diffing.Ref)
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -73,8 +67,6 @@ func (gui *Gui) remoteBranchesListContext() *context.RemoteBranchesContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetRemoteBranchListDisplayStrings(gui.State.Model.RemoteBranches, gui.State.Modes.Diffing.Ref)
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -96,8 +88,6 @@ func (gui *Gui) tagsListContext() *context.TagsContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetTagListDisplayStrings(gui.State.Model.Tags, gui.State.Modes.Diffing.Ref)
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -134,7 +124,6 @@ func (gui *Gui) branchCommitsListContext() *context.LocalCommitsContext {
 			)
 		},
 		OnFocusWrapper(gui.onCommitFocus),
-		nil,
 		gui.c,
 	)
 }
@@ -167,8 +156,6 @@ func (gui *Gui) subCommitsListContext() *context.SubCommitsContext {
 				false,
 			)
 		},
-		OnFocusWrapper(gui.onSubCommitFocus),
-		nil,
 		gui.c,
 	)
 }
@@ -206,8 +193,6 @@ func (gui *Gui) reflogCommitsListContext() *context.ReflogCommitsContext {
 				gui.c.UserConfig.Git.ParseEmoji,
 			)
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -219,8 +204,6 @@ func (gui *Gui) stashListContext() *context.StashContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetStashEntryListDisplayStrings(gui.State.Model.StashEntries, gui.State.Modes.Diffing.Ref)
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -239,8 +222,6 @@ func (gui *Gui) commitFilesListContext() *context.CommitFilesContext {
 				return []string{line}
 			})
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }
@@ -252,8 +233,6 @@ func (gui *Gui) submodulesListContext() *context.SubmodulesContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetSubmoduleListDisplayStrings(gui.State.Model.Submodules)
 		},
-		nil,
-		nil,
 		gui.c,
 	)
 }

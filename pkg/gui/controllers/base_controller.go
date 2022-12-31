@@ -22,3 +22,11 @@ func (self *baseController) GetOnClick() func() error {
 func (self *baseController) GetOnRenderToMain() func() error {
 	return nil
 }
+
+func (self *baseController) GetOnFocus() func(types.OnFocusOpts) error {
+	return nil
+}
+
+func (self *baseController) GetOnFocusLost() func(types.OnFocusLostOpts) error {
+	return nil
+}

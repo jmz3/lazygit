@@ -17,6 +17,8 @@ type BaseContext struct {
 	mouseKeybindingsFns []types.MouseKeybindingsFn
 	onClickFn           func() error
 	onRenderToMainFn    func() error
+	onFocusFn           onFocusFn
+	onFocusLostFn       onFocusLostFn
 
 	focusable           bool
 	transient           bool
@@ -25,6 +27,11 @@ type BaseContext struct {
 
 	*ParentContextMgr
 }
+
+type (
+	onFocusFn     = func(types.OnFocusOpts) error
+	onFocusLostFn = func(types.OnFocusLostOpts) error
+)
 
 var _ types.IBaseContext = &BaseContext{}
 
@@ -138,6 +145,26 @@ func (self *BaseContext) AddOnRenderToMainFn(fn func() error) {
 
 func (self *BaseContext) GetOnRenderToMain() func() error {
 	return self.onRenderToMainFn
+}
+
+func (self *BaseContext) AddOnFocusFn(fn onFocusFn) {
+	if fn != nil {
+		self.onFocusFn = fn
+	}
+}
+
+func (self *BaseContext) GetOnFocus() onFocusFn {
+	return self.onFocusFn
+}
+
+func (self *BaseContext) AddOnFocusLostFn(fn onFocusLostFn) {
+	if fn != nil {
+		self.onFocusLostFn = fn
+	}
+}
+
+func (self *BaseContext) GetOnFocusLost() onFocusLostFn {
+	return self.onFocusLostFn
 }
 
 func (self *BaseContext) GetMouseKeybindings(opts types.KeybindingsOpts) []*gocui.ViewMouseBinding {

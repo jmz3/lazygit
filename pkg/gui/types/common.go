@@ -214,4 +214,5 @@ type IStateAccessor interface {
 
 type IRepoStateAccessor interface {
 	GetViewsSetup() bool
+	GetWindowViewNameMap() *utils.ThreadSafeMap[string, string]
 }

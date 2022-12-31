@@ -51,3 +51,19 @@ func (self *SubCommitsController) GetOnRenderToMain() func() error {
 		})
 	}
 }
+
+func (self *SubCommitsController) GetOnFocus() func() error {
+	return func() error {
+		context := self.context()
+		if context.GetSelectedLineIdx() > COMMIT_THRESHOLD && context.GetLimitCommits() {
+			context.SetLimitCommits(false)
+			go utils.Safe(func() {
+				if err := self.refreshSubCommitsWithLimit(); err != nil {
+					_ = self.c.Error(err)
+				}
+			})
+		}
+
+		return nil
+	}
+}

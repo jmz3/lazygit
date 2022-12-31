@@ -101,7 +101,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		if err != nil && !gocui.IsUnknownView(err) {
 			return err
 		}
-		view.Visible = gui.getViewNameForWindow(context.GetWindowName()) == context.GetViewName()
+		view.Visible = gui.helpers.Window.GetViewNameForWindow(context.GetWindowName()) == context.GetViewName()
 	}
 
 	if gui.PrevLayout.Information != informationStr {

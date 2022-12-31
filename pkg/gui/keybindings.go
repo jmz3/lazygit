@@ -461,7 +461,9 @@ func (gui *Gui) resetKeybindings() error {
 	for _, values := range gui.viewTabMap() {
 		for _, value := range values {
 			viewName := value.ViewName
-			tabClickCallback := func(tabIndex int) error { return gui.onViewTabClick(gui.windowForView(viewName), tabIndex) }
+			tabClickCallback := func(tabIndex int) error {
+				return gui.onViewTabClick(gui.helpers.Window.WindowForView(viewName), tabIndex)
+			}
 
 			if err := gui.g.SetTabClickBinding(viewName, tabClickCallback); err != nil {
 				return err

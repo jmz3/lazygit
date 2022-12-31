@@ -226,6 +226,10 @@ func (self *GuiRepoState) GetViewsSetup() bool {
 	return self.ViewsSetup
 }
 
+func (self *GuiRepoState) GetWindowViewNameMap() *utils.ThreadSafeMap[string, string] {
+	return self.WindowViewNameMap
+}
+
 type searchingState struct {
 	view         *gocui.View
 	isSearching  bool
@@ -300,8 +304,6 @@ func (gui *Gui) resetState(startArgs appTypes.StartArgs, reuseState bool) {
 	initialContext := initialContext(contextTree, startArgs)
 	initialScreenMode := initialScreenMode(startArgs, gui.Config)
 
-	initialWindowViewNameMap := gui.initialWindowViewNameMap(contextTree)
-
 	gui.State = &GuiRepoState{
 		Model: &types.Model{
 			CommitFiles:           nil,
@@ -322,7 +324,7 @@ func (gui *Gui) resetState(startArgs appTypes.StartArgs, reuseState bool) {
 		// TODO: put contexts in the context manager
 		ContextMgr:        NewContextMgr(initialContext, gui),
 		Contexts:          contextTree,
-		WindowViewNameMap: initialWindowViewNameMap,
+		WindowViewNameMap: initialWindowViewNameMap(contextTree),
 	}
 
 	if err := gui.c.PushContext(initialContext); err != nil {
@@ -330,6 +332,16 @@ func (gui *Gui) resetState(startArgs appTypes.StartArgs, reuseState bool) {
 	}
 
 	gui.RepoStateMap[Repo(currentDir)] = gui.State
+}
+
+func initialWindowViewNameMap(contextTree *context.ContextTree) *utils.ThreadSafeMap[string, string] {
+	result := utils.NewThreadSafeMap[string, string]()
+
+	for _, context := range contextTree.Flatten() {
+		result.Set(context.GetWindowName(), context.GetViewName())
+	}
+
+	return result
 }
 
 func initialScreenMode(startArgs appTypes.StartArgs, config config.AppConfigurer) WindowMaximisation {

@@ -21,9 +21,6 @@ func NewBranchesContext(
 	view *gocui.View,
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
-	onFocus func(types.OnFocusOpts) error,
-	onFocusLost func(opts types.OnFocusLostOpts) error,
-
 	c *types.HelperCommon,
 ) *BranchesContext {
 	viewModel := NewBasicViewModel(getModel)
@@ -37,10 +34,7 @@ func NewBranchesContext(
 				Key:        LOCAL_BRANCHES_CONTEXT_KEY,
 				Kind:       types.SIDE_CONTEXT,
 				Focusable:  true,
-			}), ContextCallbackOpts{
-				OnFocus:     onFocus,
-				OnFocusLost: onFocusLost,
-			}),
+			}), ContextCallbackOpts{}),
 			list:              viewModel,
 			getDisplayStrings: getDisplayStrings,
 			c:                 c,

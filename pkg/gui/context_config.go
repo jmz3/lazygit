@@ -37,17 +37,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				Key:        context.SNAKE_CONTEXT_KEY,
 				Focusable:  true,
 			}),
-			context.ContextCallbackOpts{
-				OnFocus: func(opts types.OnFocusOpts) error {
-					gui.helpers.Snake.StartGame()
-					return nil
-				},
-				OnFocusLost: func(opts types.OnFocusLostOpts) error {
-					gui.helpers.Snake.ExitGame()
-					gui.moveToTopOfWindow(gui.State.Contexts.Submodules)
-					return nil
-				},
-			},
+			context.ContextCallbackOpts{},
 		),
 		Files:          gui.filesListContext(),
 		Submodules:     gui.submodulesListContext(),
@@ -70,11 +60,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				Key:        context.NORMAL_MAIN_CONTEXT_KEY,
 				Focusable:  false,
 			}),
-			context.ContextCallbackOpts{
-				OnFocus: func(opts types.OnFocusOpts) error {
-					return nil // TODO: should we do something here? We should allow for scrolling the panel
-				},
-			},
+			context.ContextCallbackOpts{},
 		),
 		NormalSecondary: context.NewSimpleContext(
 			context.NewBaseContext(context.NewBaseContextOpts{

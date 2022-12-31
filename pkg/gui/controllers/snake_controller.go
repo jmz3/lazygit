@@ -52,6 +52,21 @@ func (self *SnakeController) Context() types.Context {
 	return self.contexts.Snake
 }
 
+func (self *SnakeController) GetOnFocus() func(types.OnFocusOpts) error {
+	return func(types.OnFocusOpts) error {
+		self.helpers.Snake.StartGame()
+		return nil
+	}
+}
+
+func (self *SnakeController) GetOnFocusLost() func(types.OnFocusLostOpts) error {
+	return func(types.OnFocusLostOpts) error {
+		self.helpers.Snake.ExitGame()
+		self.helpers.Window.MoveToTopOfWindow(self.contexts.Submodules)
+		return nil
+	}
+}
+
 func (self *SnakeController) SetDirection(direction snake.Direction) func() error {
 	return func() error {
 		self.helpers.Snake.SetDirection(direction)

@@ -188,9 +188,9 @@ func (self *ContextMgr) activateContext(c types.Context, opts types.OnFocusOpts)
 		return err
 	}
 
-	self.gui.setWindowContext(c)
+	self.gui.helpers.Window.SetWindowContext(c)
 
-	self.gui.moveToTopOfWindow(c)
+	self.gui.helpers.Window.MoveToTopOfWindow(c)
 	if _, err := self.gui.c.GocuiGui().SetCurrentView(viewName); err != nil {
 		return err
 	}
