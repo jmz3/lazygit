@@ -116,11 +116,7 @@ func (gui *Gui) Refresh(options types.RefreshOptions) error {
 		}
 
 		if scopeSet.Includes(types.FILES) || scopeSet.Includes(types.SUBMODULES) {
-			refresh(func() { _ = gui.RefreshFilesAndSubmodules() })
-		}
-
-		if scopeSet.Includes(types.FILES) || scopeSet.Includes(types.SUBMODULES) {
-			refresh(func() { _ = gui.RefreshFilesAndSubmodules() })
+			refresh(func() { _ = gui.refreshFilesAndSubmodules() })
 		}
 
 		if scopeSet.Includes(types.STASH) {
@@ -223,6 +219,7 @@ func (gui *Gui) refreshCommits() {
 	wg.Wait()
 }
 
+// NOTE: used from outside this file
 func (gui *Gui) refreshCommitsWithLimit() error {
 	gui.Mutexes.LocalCommitsMutex.Lock()
 	defer gui.Mutexes.LocalCommitsMutex.Unlock()
@@ -326,7 +323,7 @@ func (gui *Gui) refreshBranches() {
 	gui.refreshStatus()
 }
 
-func (gui *Gui) RefreshFilesAndSubmodules() error {
+func (gui *Gui) refreshFilesAndSubmodules() error {
 	gui.Mutexes.RefreshingFilesMutex.Lock()
 	gui.State.IsRefreshingFiles = true
 	defer func() {
@@ -565,6 +562,7 @@ func (gui *Gui) refreshStatus() {
 	gui.setViewContent(gui.Views.Status, status)
 }
 
+// NOTE: used from outside this file
 func (gui *Gui) refreshStagingPanel(focusOpts types.OnFocusOpts) error {
 	secondaryFocused := gui.secondaryStagingFocused()
 
@@ -656,6 +654,7 @@ func (gui *Gui) secondaryStagingFocused() bool {
 	return gui.c.CurrentStaticContext().GetKey() == gui.State.Contexts.StagingSecondary.GetKey()
 }
 
+// NOTE: used from outside this file
 func (gui *Gui) refreshPatchBuildingPanel(opts types.OnFocusOpts) error {
 	selectedLineIdx := -1
 	if opts.ClickedWindowName == "main" {
