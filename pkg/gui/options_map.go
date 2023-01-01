@@ -38,7 +38,7 @@ func (self *OptionsMapMgr) optionsMapToString(optionsMap map[string]string) stri
 }
 
 func (self *OptionsMapMgr) renderOptionsMap(optionsMap map[string]string) {
-	_ = self.c.RenderString(self.c.Views().Options, self.optionsMapToString(optionsMap))
+	self.c.SetViewContent(self.c.Views().Options, self.optionsMapToString(optionsMap))
 }
 
 func (self *OptionsMapMgr) globalOptionsMap() map[string]string {

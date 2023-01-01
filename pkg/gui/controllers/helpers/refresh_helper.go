@@ -22,10 +22,14 @@ import (
 )
 
 type RefreshHelper struct {
-	c          *types.HelperCommon
-	contexts   *context.ContextTree
-	git        *commands.GitCommand
-	refsHelper *RefsHelper
+	c                    *types.HelperCommon
+	contexts             *context.ContextTree
+	git                  *commands.GitCommand
+	refsHelper           *RefsHelper
+	mergeAndRebaseHelper *MergeAndRebaseHelper
+	patchBuildingHelper  *PatchBuildingHelper
+	mergeConflictsHelper *MergeConflictsHelper
+	fileWatcher          types.IFileWatcher
 }
 
 func NewRefreshHelper(
@@ -33,46 +37,20 @@ func NewRefreshHelper(
 	contexts *context.ContextTree,
 	git *commands.GitCommand,
 	refsHelper *RefsHelper,
+	mergeAndRebaseHelper *MergeAndRebaseHelper,
+	patchBuildingHelper *PatchBuildingHelper,
+	mergeConflictsHelper *MergeConflictsHelper,
+	fileWatcher types.IFileWatcher,
 ) *RefreshHelper {
 	return &RefreshHelper{
-		c:          c,
-		contexts:   contexts,
-		git:        git,
-		refsHelper: refsHelper,
-	}
-}
-
-func getScopeNames(scopes []types.RefreshableView) []string {
-	scopeNameMap := map[types.RefreshableView]string{
-		types.COMMITS:         "commits",
-		types.BRANCHES:        "branches",
-		types.FILES:           "files",
-		types.SUBMODULES:      "submodules",
-		types.STASH:           "stash",
-		types.REFLOG:          "reflog",
-		types.TAGS:            "tags",
-		types.REMOTES:         "remotes",
-		types.STATUS:          "status",
-		types.BISECT_INFO:     "bisect",
-		types.STAGING:         "staging",
-		types.MERGE_CONFLICTS: "mergeConflicts",
-	}
-
-	return slices.Map(scopes, func(scope types.RefreshableView) string {
-		return scopeNameMap[scope]
-	})
-}
-
-func getModeName(mode types.RefreshMode) string {
-	switch mode {
-	case types.SYNC:
-		return "sync"
-	case types.ASYNC:
-		return "async"
-	case types.BLOCK_UI:
-		return "block-ui"
-	default:
-		return "unknown mode"
+		c:                    c,
+		contexts:             contexts,
+		git:                  git,
+		refsHelper:           refsHelper,
+		mergeAndRebaseHelper: mergeAndRebaseHelper,
+		patchBuildingHelper:  patchBuildingHelper,
+		mergeConflictsHelper: mergeConflictsHelper,
+		fileWatcher:          fileWatcher,
 	}
 }
 
@@ -158,11 +136,11 @@ func (self *RefreshHelper) Refresh(options types.RefreshOptions) error {
 		}
 
 		if scopeSet.Includes(types.PATCH_BUILDING) {
-			refresh(func() { _ = self.helpers.PatchBuilding.RefreshPatchBuildingPanel(types.OnFocusOpts{}) })
+			refresh(func() { _ = self.patchBuildingHelper.RefreshPatchBuildingPanel(types.OnFocusOpts{}) })
 		}
 
 		if scopeSet.Includes(types.MERGE_CONFLICTS) || scopeSet.Includes(types.FILES) {
-			refresh(func() { _ = self.helpers.MergeConflicts.refreshMergeState() })
+			refresh(func() { _ = self.mergeConflictsHelper.RefreshMergeState() })
 		}
 
 		wg.Wait()
@@ -184,6 +162,40 @@ func (self *RefreshHelper) Refresh(options types.RefreshOptions) error {
 	}
 
 	return nil
+}
+
+func getScopeNames(scopes []types.RefreshableView) []string {
+	scopeNameMap := map[types.RefreshableView]string{
+		types.COMMITS:         "commits",
+		types.BRANCHES:        "branches",
+		types.FILES:           "files",
+		types.SUBMODULES:      "submodules",
+		types.STASH:           "stash",
+		types.REFLOG:          "reflog",
+		types.TAGS:            "tags",
+		types.REMOTES:         "remotes",
+		types.STATUS:          "status",
+		types.BISECT_INFO:     "bisect",
+		types.STAGING:         "staging",
+		types.MERGE_CONFLICTS: "mergeConflicts",
+	}
+
+	return slices.Map(scopes, func(scope types.RefreshableView) string {
+		return scopeNameMap[scope]
+	})
+}
+
+func getModeName(mode types.RefreshMode) string {
+	switch mode {
+	case types.SYNC:
+		return "sync"
+	case types.ASYNC:
+		return "async"
+	case types.BLOCK_UI:
+		return "block-ui"
+	default:
+		return "unknown mode"
+	}
 }
 
 // during startup, the bottleneck is fetching the reflog entries. We need these
@@ -441,7 +453,7 @@ func (self *RefreshHelper) refreshStateFiles() error {
 	}
 
 	if self.git.Status.WorkingTreeState() != enums.REBASE_MODE_NONE && conflictFileCount == 0 && prevConflictFileCount > 0 {
-		self.c.OnUIThread(func() error { return self.helpers.MergeAndRebase.PromptToContinueRebase() })
+		self.c.OnUIThread(func() error { return self.mergeAndRebaseHelper.PromptToContinueRebase() })
 	}
 
 	fileTreeViewModel.RWMutex.Lock()
@@ -463,7 +475,7 @@ func (self *RefreshHelper) refreshStateFiles() error {
 	fileTreeViewModel.SetTree()
 	fileTreeViewModel.RWMutex.Unlock()
 
-	if err := self.fileWatcher.addFilesToFileWatcher(files); err != nil {
+	if err := self.fileWatcher.AddFilesToFileWatcher(files); err != nil {
 		return err
 	}
 
@@ -580,7 +592,7 @@ func (self *RefreshHelper) refreshStatus() {
 	repoName := utils.GetCurrentRepoName()
 	status += fmt.Sprintf("%s → %s ", repoName, name)
 
-	self.setViewContent(self.Views.Status, status)
+	self.c.SetViewContent(self.c.Views().Status, status)
 }
 
 // NOTE: used from outside this file

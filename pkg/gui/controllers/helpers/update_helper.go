@@ -65,7 +65,7 @@ func (self *UpdateHelper) startUpdating(newVersion string) {
 func (self *UpdateHelper) onUpdateFinish(err error) error {
 	self.c.State().SetUpdating(false)
 	self.c.OnUIThread(func() error {
-		_ = self.c.RenderString(self.c.Views().AppStatus, "")
+		self.c.SetViewContent(self.c.Views().AppStatus, "")
 		if err != nil {
 			errMessage := utils.ResolvePlaceholderString(
 				self.c.Tr.UpdateFailedErr, map[string]string{

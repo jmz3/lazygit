@@ -39,7 +39,9 @@ func (self *BackgroundRoutineMgr) startBackgroundRoutines() {
 	if userConfig.Git.AutoRefresh {
 		refreshInterval := userConfig.Refresher.RefreshInterval
 		if refreshInterval > 0 {
-			self.goEvery(time.Second*time.Duration(refreshInterval), self.gui.stopChan, self.gui.refreshFilesAndSubmodules)
+			self.goEvery(time.Second*time.Duration(refreshInterval), self.gui.stopChan, func() error {
+				return self.gui.c.Refresh(types.RefreshOptions{Scope: []types.RefreshableView{types.FILES}})
+			})
 		} else {
 			self.gui.c.Log.Errorf(
 				"Value of config option 'refresher.refreshInterval' (%d) is invalid, disabling auto-refresh",

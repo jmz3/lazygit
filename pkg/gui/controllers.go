@@ -32,10 +32,13 @@ func (gui *Gui) resetControllers() {
 	gpgHelper := helpers.NewGpgHelper(helperCommon, gui.os, gui.git)
 	viewHelper := helpers.NewViewHelper(helperCommon, gui.State.Contexts)
 	recordDirectoryHelper := helpers.NewRecordDirectoryHelper(helperCommon)
+	patchBuildingHelper := helpers.NewPatchBuildingHelper(helperCommon, gui.git, gui.State.Contexts)
+	mergeConflictsHelper := helpers.NewMergeConflictsHelper(helperCommon, gui.State.Contexts, gui.git)
+	refreshHelper := helpers.NewRefreshHelper(helperCommon, gui.State.Contexts, gui.git, refsHelper, rebaseHelper, patchBuildingHelper, mergeConflictsHelper, gui.fileWatcher)
 	gui.helpers = &helpers.Helpers{
 		Refs:           refsHelper,
 		Host:           helpers.NewHostHelper(helperCommon, gui.git),
-		PatchBuilding:  helpers.NewPatchBuildingHelper(helperCommon, gui.git, gui.State.Contexts),
+		PatchBuilding:  patchBuildingHelper,
 		Bisect:         helpers.NewBisectHelper(helperCommon, gui.git),
 		Suggestions:    suggestionsHelper,
 		Files:          helpers.NewFilesHelper(helperCommon, gui.git, osCommand),
@@ -43,7 +46,7 @@ func (gui *Gui) resetControllers() {
 		Tags:           helpers.NewTagsHelper(helperCommon, gui.git),
 		GPG:            gpgHelper,
 		MergeAndRebase: rebaseHelper,
-		MergeConflicts: helpers.NewMergeConflictsHelper(helperCommon, gui.State.Contexts, gui.git),
+		MergeConflicts: mergeConflictsHelper,
 		CherryPick: helpers.NewCherryPickHelper(
 			helperCommon,
 			gui.git,
@@ -60,6 +63,7 @@ func (gui *Gui) resetControllers() {
 		Update:          helpers.NewUpdateHelper(helperCommon, gui.Updater),
 		Window:          helpers.NewWindowHelper(helperCommon, viewHelper, gui.State.Contexts),
 		View:            viewHelper,
+		Refresh:         refreshHelper,
 	}
 
 	gui.CustomCommandsClient = custom_commands.NewClient(

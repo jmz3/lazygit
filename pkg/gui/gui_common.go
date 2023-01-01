@@ -80,8 +80,8 @@ func (self *guiCommon) GetConfig() config.AppConfigurer {
 	return self.gui.Config
 }
 
-func (self *guiCommon) RenderString(view *gocui.View, content string) error {
-	return self.gui.renderString(view, content)
+func (self *guiCommon) ResetViewOrigin(view *gocui.View) {
+	self.gui.resetViewOrigin(view)
 }
 
 func (self *guiCommon) SetViewContent(view *gocui.View, content string) {

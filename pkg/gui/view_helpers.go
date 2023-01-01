@@ -8,9 +8,14 @@ import (
 	"github.com/spkg/bom"
 )
 
-func (gui *Gui) resetOrigin(v *gocui.View) error {
-	_ = v.SetCursor(0, 0)
-	return v.SetOrigin(0, 0)
+func (gui *Gui) resetViewOrigin(v *gocui.View) {
+	if err := v.SetCursor(0, 0); err != nil {
+		gui.Log.Error(err)
+	}
+
+	if err := v.SetOrigin(0, 0); err != nil {
+		gui.Log.Error(err)
+	}
 }
 
 // Returns the number of lines that we should read initially from a cmd task so
@@ -47,18 +52,6 @@ func (gui *Gui) cleanString(s string) string {
 
 func (gui *Gui) setViewContent(v *gocui.View, s string) {
 	v.SetContent(gui.cleanString(s))
-}
-
-// renderString resets the origin of a view and sets its content
-func (gui *Gui) renderString(view *gocui.View, s string) error {
-	if err := view.SetOrigin(0, 0); err != nil {
-		return err
-	}
-	if err := view.SetCursor(0, 0); err != nil {
-		return err
-	}
-	gui.setViewContent(view, s)
-	return nil
 }
 
 func (gui *Gui) currentViewName() string {

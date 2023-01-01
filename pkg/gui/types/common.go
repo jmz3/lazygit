@@ -31,10 +31,10 @@ type IGuiCommon interface {
 	// case would be overkill, although refresh will internally call 'PostRefreshUpdate'
 	PostRefreshUpdate(Context) error
 
-	// renders a string to a view and resets its origin. Does not explicitly cause the screen itself to re-render.
-	RenderString(view *gocui.View, content string) error
-	// rendersa string to a view without resetting its origin
+	// renders string to a view without resetting its origin
 	SetViewContent(view *gocui.View, content string)
+	// resets cursor and origin of view. Often used before calling SetViewContent
+	ResetViewOrigin(view *gocui.View)
 
 	// this just re-renders the screen
 	Render()
@@ -230,3 +230,7 @@ const (
 	INITIAL StartupStage = iota
 	COMPLETE
 )
+
+type IFileWatcher interface {
+	AddFilesToFileWatcher(files []*models.File) error
+}

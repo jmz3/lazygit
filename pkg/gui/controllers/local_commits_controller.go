@@ -796,13 +796,13 @@ func (self *LocalCommitsController) checkSelected(callback func(*models.Commit) 
 	}
 }
 
-func (self *LocalCommitsController) GetOnFocus() func() error {
-	return func() error {
+func (self *LocalCommitsController) GetOnFocus() func(types.OnFocusOpts) error {
+	return func(types.OnFocusOpts) error {
 		context := self.context()
 		if context.GetSelectedLineIdx() > COMMIT_THRESHOLD && context.GetLimitCommits() {
 			context.SetLimitCommits(false)
 			go utils.Safe(func() {
-				if err := self.helpers.Refresh.RefreshCommitsWithLimit(); err != nil {
+				if err := self.c.Refresh(types.RefreshOptions{Scope: []types.RefreshableView{types.COMMITS}}); err != nil {
 					_ = self.c.Error(err)
 				}
 			})

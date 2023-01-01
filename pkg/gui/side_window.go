@@ -17,9 +17,7 @@ func (gui *Gui) nextSideWindow() error {
 			}
 		}
 	}
-	if err := gui.resetOrigin(gui.Views.Main); err != nil {
-		return err
-	}
+	gui.c.ResetViewOrigin(gui.Views.Main)
 
 	context := gui.helpers.Window.GetContextForWindow(newWindow)
 
@@ -43,9 +41,7 @@ func (gui *Gui) previousSideWindow() error {
 			}
 		}
 	}
-	if err := gui.resetOrigin(gui.Views.Main); err != nil {
-		return err
-	}
+	gui.c.ResetViewOrigin(gui.Views.Main)
 
 	context := gui.helpers.Window.GetContextForWindow(newWindow)
 

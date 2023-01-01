@@ -122,6 +122,8 @@ type Gui struct {
 	// flag as to whether or not the diff view should ignore whitespace
 	IgnoreWhitespaceInDiffView bool
 
+	IsRefreshingFiles bool
+
 	// we use this to decide whether we'll return to the original directory that
 	// lazygit was opened in, or if we'll retain the one we're currently in.
 	RetainOriginalDir bool
@@ -176,6 +178,14 @@ func (self *StateAccessor) GetRepoState() types.IRepoStateAccessor {
 	return self.gui.State
 }
 
+func (self *StateAccessor) GetIsRefreshingFiles() bool {
+	return self.gui.IsRefreshingFiles
+}
+
+func (self *StateAccessor) SetIsRefreshingFiles(value bool) {
+	self.gui.IsRefreshingFiles = value
+}
+
 // we keep track of some stuff from one render to the next to see if certain
 // things have changed
 type PrevLayout struct {
@@ -194,9 +204,8 @@ type GuiRepoState struct {
 	SplitMainPanel bool
 	LimitCommits   bool
 
-	IsRefreshingFiles bool
-	Searching         searchingState
-	StartupStage      types.StartupStage // Allows us to not load everything at once
+	Searching    searchingState
+	StartupStage types.StartupStage // Allows us to not load everything at once
 
 	ContextMgr ContextMgr
 	Contexts   *context.ContextTree
@@ -236,14 +245,6 @@ func (self *GuiRepoState) GetStartupStage() types.StartupStage {
 
 func (self *GuiRepoState) SetStartupStage(value types.StartupStage) {
 	self.StartupStage = value
-}
-
-func (self *GuiRepoState) GetIsRefreshingFiles() bool {
-	return self.IsRefreshingFiles
-}
-
-func (self *GuiRepoState) SetIsRefreshingFiles(value bool) {
-	self.IsRefreshingFiles = value
 }
 
 type searchingState struct {
@@ -433,7 +434,7 @@ func NewGui(
 		InitialDir: initialDir,
 	}
 
-	gui.watchFilesForChanges()
+	gui.WatchFilesForChanges()
 
 	gui.PopupHandler = popup.NewPopupHandler(
 		cmn,

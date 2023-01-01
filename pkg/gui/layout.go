@@ -105,7 +105,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	}
 
 	if gui.PrevLayout.Information != informationStr {
-		gui.setViewContent(gui.Views.Information, informationStr)
+		gui.c.SetViewContent(gui.Views.Information, informationStr)
 		gui.PrevLayout.Information = informationStr
 	}
 

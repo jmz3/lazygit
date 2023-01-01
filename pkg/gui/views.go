@@ -92,7 +92,7 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.SearchPrefix.BgColor = gocui.ColorDefault
 	gui.Views.SearchPrefix.FgColor = gocui.ColorGreen
 	gui.Views.SearchPrefix.Frame = false
-	gui.setViewContent(gui.Views.SearchPrefix, SEARCH_PREFIX)
+	gui.c.SetViewContent(gui.Views.SearchPrefix, SEARCH_PREFIX)
 
 	gui.Views.Stash.Title = gui.c.Tr.StashTitle
 
