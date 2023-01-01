@@ -84,6 +84,10 @@ func (self *guiCommon) RenderString(view *gocui.View, content string) error {
 	return self.gui.renderString(view, content)
 }
 
+func (self *guiCommon) SetViewContent(view *gocui.View, content string) {
+	self.gui.setViewContent(view, content)
+}
+
 func (self *guiCommon) Render() {
 	self.gui.render()
 }

@@ -802,7 +802,7 @@ func (self *LocalCommitsController) GetOnFocus() func() error {
 		if context.GetSelectedLineIdx() > COMMIT_THRESHOLD && context.GetLimitCommits() {
 			context.SetLimitCommits(false)
 			go utils.Safe(func() {
-				if err := self.refreshCommitsWithLimit(); err != nil {
+				if err := self.helpers.Refresh.RefreshCommitsWithLimit(); err != nil {
 					_ = self.c.Error(err)
 				}
 			})

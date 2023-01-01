@@ -196,7 +196,7 @@ type GuiRepoState struct {
 
 	IsRefreshingFiles bool
 	Searching         searchingState
-	StartupStage      StartupStage // Allows us to not load everything at once
+	StartupStage      types.StartupStage // Allows us to not load everything at once
 
 	ContextMgr ContextMgr
 	Contexts   *context.ContextTree
@@ -230,19 +230,27 @@ func (self *GuiRepoState) GetWindowViewNameMap() *utils.ThreadSafeMap[string, st
 	return self.WindowViewNameMap
 }
 
+func (self *GuiRepoState) GetStartupStage() types.StartupStage {
+	return self.StartupStage
+}
+
+func (self *GuiRepoState) SetStartupStage(value types.StartupStage) {
+	self.StartupStage = value
+}
+
+func (self *GuiRepoState) GetIsRefreshingFiles() bool {
+	return self.IsRefreshingFiles
+}
+
+func (self *GuiRepoState) SetIsRefreshingFiles(value bool) {
+	self.IsRefreshingFiles = value
+}
+
 type searchingState struct {
 	view         *gocui.View
 	isSearching  bool
 	searchString string
 }
-
-// startup stages so we don't need to load everything at once
-type StartupStage int
-
-const (
-	INITIAL StartupStage = iota
-	COMPLETE
-)
 
 func (gui *Gui) onNewRepo(startArgs appTypes.StartArgs, reuseState bool) error {
 	var err error

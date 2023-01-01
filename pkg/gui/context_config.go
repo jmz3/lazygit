@@ -128,7 +128,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				// no need to change wrap on the secondary view because it can't be interacted with
 				gui.Views.PatchBuilding.Wrap = false
 
-				return gui.refreshPatchBuildingPanel(opts)
+				return gui.helpers.PatchBuilding.RefreshPatchBuildingPanel(opts)
 			},
 			func(opts types.OnFocusLostOpts) error {
 				gui.Views.PatchBuilding.Wrap = true

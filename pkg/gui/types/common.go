@@ -33,6 +33,8 @@ type IGuiCommon interface {
 
 	// renders a string to a view and resets its origin. Does not explicitly cause the screen itself to re-render.
 	RenderString(view *gocui.View, content string) error
+	// rendersa string to a view without resetting its origin
+	SetViewContent(view *gocui.View, content string)
 
 	// this just re-renders the screen
 	Render()
@@ -209,10 +211,22 @@ type IStateAccessor interface {
 	GetRepoState() IRepoStateAccessor
 	// tells us whether we're currently updating lazygit
 	GetUpdating() bool
-	SetUpdating(value bool)
+	SetUpdating(bool)
+	SetIsRefreshingFiles(bool)
+	GetIsRefreshingFiles() bool
 }
 
 type IRepoStateAccessor interface {
 	GetViewsSetup() bool
 	GetWindowViewNameMap() *utils.ThreadSafeMap[string, string]
+	GetStartupStage() StartupStage
+	SetStartupStage(stage StartupStage)
 }
+
+// startup stages so we don't need to load everything at once
+type StartupStage int
+
+const (
+	INITIAL StartupStage = iota
+	COMPLETE
+)

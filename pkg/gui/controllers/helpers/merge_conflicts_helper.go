@@ -132,3 +132,23 @@ func (self *MergeConflictsHelper) Render(isFocused bool) error {
 		},
 	})
 }
+
+func (self *MergeConflictsHelper) RefreshMergeState() error {
+	self.contexts.MergeConflicts.GetMutex().Lock()
+	defer self.contexts.MergeConflicts.GetMutex().Unlock()
+
+	if self.c.CurrentContext().GetKey() != context.MERGE_CONFLICTS_CONTEXT_KEY {
+		return nil
+	}
+
+	hasConflicts, err := self.SetConflictsAndRender(self.contexts.MergeConflicts.GetState().GetPath(), true)
+	if err != nil {
+		return self.c.Error(err)
+	}
+
+	if !hasConflicts {
+		return self.EscapeMerge()
+	}
+
+	return nil
+}

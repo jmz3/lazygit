@@ -23,6 +23,7 @@ type Helpers struct {
 	Update          *UpdateHelper
 	Window          *WindowHelper
 	View            *ViewHelper
+	Refresh         *RefreshHelper
 }
 
 func NewStubHelpers() *Helpers {
@@ -48,5 +49,6 @@ func NewStubHelpers() *Helpers {
 		Update:          &UpdateHelper{},
 		Window:          &WindowHelper{},
 		View:            &ViewHelper{},
+		Refresh:         &RefreshHelper{},
 	}
 }
