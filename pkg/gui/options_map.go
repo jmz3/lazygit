@@ -26,7 +26,7 @@ func (self *OptionsMapMgr) renderContextOptionsMap(c types.Context) {
 		optionsMap = self.globalOptionsMap()
 	}
 
-	self.renderOptionsMap(optionsMap)
+	self.renderOptions(self.optionsMapToString(optionsMap))
 }
 
 func (self *OptionsMapMgr) optionsMapToString(optionsMap map[string]string) string {
@@ -37,8 +37,8 @@ func (self *OptionsMapMgr) optionsMapToString(optionsMap map[string]string) stri
 	return strings.Join(options, ", ")
 }
 
-func (self *OptionsMapMgr) renderOptionsMap(optionsMap map[string]string) {
-	self.c.SetViewContent(self.c.Views().Options, self.optionsMapToString(optionsMap))
+func (self *OptionsMapMgr) renderOptions(options string) {
+	self.c.SetViewContent(self.c.Views().Options, options)
 }
 
 func (self *OptionsMapMgr) globalOptionsMap() map[string]string {

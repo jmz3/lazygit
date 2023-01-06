@@ -123,7 +123,6 @@ func (gui *Gui) branchCommitsListContext() *context.LocalCommitsContext {
 				showYouAreHereLabel,
 			)
 		},
-		OnFocusWrapper(gui.onCommitFocus),
 		gui.c,
 	)
 }
@@ -244,7 +243,6 @@ func (gui *Gui) suggestionsListContext() *context.SuggestionsContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetSuggestionListDisplayStrings(gui.State.Suggestions)
 		},
-		nil,
 		func(types.OnFocusLostOpts) error {
 			gui.deactivateConfirmationPrompt()
 			return nil

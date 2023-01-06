@@ -12,6 +12,7 @@ type Helpers struct {
 	CherryPick     *CherryPickHelper
 	Host           *HostHelper
 	PatchBuilding  *PatchBuildingHelper
+	Staging        *StagingHelper
 	GPG            *GpgHelper
 	Upstream       *UpstreamHelper
 	AmendHelper    *AmendHelper
@@ -39,6 +40,7 @@ func NewStubHelpers() *Helpers {
 		CherryPick:      &CherryPickHelper{},
 		Host:            &HostHelper{},
 		PatchBuilding:   &PatchBuildingHelper{},
+		Staging:         &StagingHelper{},
 		GPG:             &GpgHelper{},
 		Upstream:        &UpstreamHelper{},
 		AmendHelper:     &AmendHelper{},

@@ -14,7 +14,6 @@ import (
 	"github.com/jesseduffield/lazygit/pkg/gui/context"
 	"github.com/jesseduffield/lazygit/pkg/gui/filetree"
 	"github.com/jesseduffield/lazygit/pkg/gui/mergeconflicts"
-	"github.com/jesseduffield/lazygit/pkg/gui/patch_exploring"
 	"github.com/jesseduffield/lazygit/pkg/gui/presentation"
 	"github.com/jesseduffield/lazygit/pkg/gui/style"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
@@ -28,6 +27,7 @@ type RefreshHelper struct {
 	refsHelper           *RefsHelper
 	mergeAndRebaseHelper *MergeAndRebaseHelper
 	patchBuildingHelper  *PatchBuildingHelper
+	stagingHelper        *StagingHelper
 	mergeConflictsHelper *MergeConflictsHelper
 	fileWatcher          types.IFileWatcher
 }
@@ -39,6 +39,7 @@ func NewRefreshHelper(
 	refsHelper *RefsHelper,
 	mergeAndRebaseHelper *MergeAndRebaseHelper,
 	patchBuildingHelper *PatchBuildingHelper,
+	stagingHelper *StagingHelper,
 	mergeConflictsHelper *MergeConflictsHelper,
 	fileWatcher types.IFileWatcher,
 ) *RefreshHelper {
@@ -49,6 +50,7 @@ func NewRefreshHelper(
 		refsHelper:           refsHelper,
 		mergeAndRebaseHelper: mergeAndRebaseHelper,
 		patchBuildingHelper:  patchBuildingHelper,
+		stagingHelper:        stagingHelper,
 		mergeConflictsHelper: mergeConflictsHelper,
 		fileWatcher:          fileWatcher,
 	}
@@ -132,7 +134,7 @@ func (self *RefreshHelper) Refresh(options types.RefreshOptions) error {
 		}
 
 		if scopeSet.Includes(types.STAGING) {
-			refresh(func() { _ = self.refreshStagingPanel(types.OnFocusOpts{}) })
+			refresh(func() { _ = self.stagingHelper.RefreshStagingPanel(types.OnFocusOpts{}) })
 		}
 
 		if scopeSet.Includes(types.PATCH_BUILDING) {
@@ -253,7 +255,6 @@ func (self *RefreshHelper) refreshCommits() {
 	wg.Wait()
 }
 
-// NOTE: used from outside this file
 func (self *RefreshHelper) refreshCommitsWithLimit() error {
 	self.c.Mutexes().LocalCommitsMutex.Lock()
 	defer self.c.Mutexes().LocalCommitsMutex.Unlock()
@@ -593,98 +594,6 @@ func (self *RefreshHelper) refreshStatus() {
 	status += fmt.Sprintf("%s → %s ", repoName, name)
 
 	self.c.SetViewContent(self.c.Views().Status, status)
-}
-
-// NOTE: used from outside this file
-func (self *RefreshHelper) refreshStagingPanel(focusOpts types.OnFocusOpts) error {
-	secondaryFocused := self.secondaryStagingFocused()
-
-	mainSelectedLineIdx := -1
-	secondarySelectedLineIdx := -1
-	if focusOpts.ClickedViewLineIdx > 0 {
-		if secondaryFocused {
-			secondarySelectedLineIdx = focusOpts.ClickedViewLineIdx
-		} else {
-			mainSelectedLineIdx = focusOpts.ClickedViewLineIdx
-		}
-	}
-
-	mainContext := self.contexts.Staging
-	secondaryContext := self.contexts.StagingSecondary
-
-	var file *models.File
-	node := self.contexts.Files.GetSelected()
-	if node != nil {
-		file = node.File
-	}
-
-	if file == nil || (!file.HasUnstagedChanges && !file.HasStagedChanges) {
-		return self.handleStagingEscape()
-	}
-
-	mainDiff := self.git.WorkingTree.WorktreeFileDiff(file, true, false, false)
-	secondaryDiff := self.git.WorkingTree.WorktreeFileDiff(file, true, true, false)
-
-	// grabbing locks here and releasing before we finish the function
-	// because pushing say the secondary context could mean entering this function
-	// again, and we don't want to have a deadlock
-	mainContext.GetMutex().Lock()
-	secondaryContext.GetMutex().Lock()
-
-	mainContext.SetState(
-		patch_exploring.NewState(mainDiff, mainSelectedLineIdx, mainContext.GetState(), self.c.Log),
-	)
-
-	secondaryContext.SetState(
-		patch_exploring.NewState(secondaryDiff, secondarySelectedLineIdx, secondaryContext.GetState(), self.c.Log),
-	)
-
-	mainState := mainContext.GetState()
-	secondaryState := secondaryContext.GetState()
-
-	mainContent := mainContext.GetContentToRender(!secondaryFocused)
-	secondaryContent := secondaryContext.GetContentToRender(secondaryFocused)
-
-	mainContext.GetMutex().Unlock()
-	secondaryContext.GetMutex().Unlock()
-
-	if mainState == nil && secondaryState == nil {
-		return self.handleStagingEscape()
-	}
-
-	if mainState == nil && !secondaryFocused {
-		return self.c.PushContext(secondaryContext, focusOpts)
-	}
-
-	if secondaryState == nil && secondaryFocused {
-		return self.c.PushContext(mainContext, focusOpts)
-	}
-
-	if secondaryFocused {
-		self.contexts.StagingSecondary.FocusSelection()
-	} else {
-		self.contexts.Staging.FocusSelection()
-	}
-
-	return self.c.RenderToMainViews(types.RefreshMainOpts{
-		Pair: self.c.MainViewPairs().Staging,
-		Main: &types.ViewUpdateOpts{
-			Task:  types.NewRenderStringWithoutScrollTask(mainContent),
-			Title: self.c.Tr.UnstagedChanges,
-		},
-		Secondary: &types.ViewUpdateOpts{
-			Task:  types.NewRenderStringWithoutScrollTask(secondaryContent),
-			Title: self.c.Tr.StagedChanges,
-		},
-	})
-}
-
-func (self *RefreshHelper) handleStagingEscape() error {
-	return self.c.PushContext(self.contexts.Files)
-}
-
-func (self *RefreshHelper) secondaryStagingFocused() bool {
-	return self.c.CurrentStaticContext().GetKey() == self.contexts.StagingSecondary.GetKey()
 }
 
 func (self *RefreshHelper) refForLog() string {

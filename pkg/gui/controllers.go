@@ -33,12 +33,14 @@ func (gui *Gui) resetControllers() {
 	viewHelper := helpers.NewViewHelper(helperCommon, gui.State.Contexts)
 	recordDirectoryHelper := helpers.NewRecordDirectoryHelper(helperCommon)
 	patchBuildingHelper := helpers.NewPatchBuildingHelper(helperCommon, gui.git, gui.State.Contexts)
+	stagingHelper := helpers.NewStagingHelper(helperCommon, gui.git, gui.State.Contexts)
 	mergeConflictsHelper := helpers.NewMergeConflictsHelper(helperCommon, gui.State.Contexts, gui.git)
-	refreshHelper := helpers.NewRefreshHelper(helperCommon, gui.State.Contexts, gui.git, refsHelper, rebaseHelper, patchBuildingHelper, mergeConflictsHelper, gui.fileWatcher)
+	refreshHelper := helpers.NewRefreshHelper(helperCommon, gui.State.Contexts, gui.git, refsHelper, rebaseHelper, patchBuildingHelper, stagingHelper, mergeConflictsHelper, gui.fileWatcher)
 	gui.helpers = &helpers.Helpers{
 		Refs:           refsHelper,
 		Host:           helpers.NewHostHelper(helperCommon, gui.git),
 		PatchBuilding:  patchBuildingHelper,
+		Staging:        stagingHelper,
 		Bisect:         helpers.NewBisectHelper(helperCommon, gui.git),
 		Suggestions:    suggestionsHelper,
 		Files:          helpers.NewFilesHelper(helperCommon, gui.git, osCommand),

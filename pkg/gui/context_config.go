@@ -80,7 +80,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				gui.Views.Staging.Wrap = false
 				gui.Views.StagingSecondary.Wrap = false
 
-				return gui.refreshStagingPanel(opts)
+				return gui.helpers.Staging.RefreshStagingPanel(opts)
 			},
 			func(opts types.OnFocusLostOpts) error {
 				gui.State.Contexts.Staging.SetState(nil)
@@ -104,7 +104,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 				gui.Views.Staging.Wrap = false
 				gui.Views.StagingSecondary.Wrap = false
 
-				return gui.refreshStagingPanel(opts)
+				return gui.helpers.Staging.RefreshStagingPanel(opts)
 			},
 			func(opts types.OnFocusLostOpts) error {
 				gui.State.Contexts.StagingSecondary.SetState(nil)
@@ -163,20 +163,7 @@ func (gui *Gui) contextTree() *context.ContextTree {
 		),
 		MergeConflicts: context.NewMergeConflictsContext(
 			gui.Views.MergeConflicts,
-			context.ContextCallbackOpts{
-				OnFocus: OnFocusWrapper(func() error {
-					gui.Views.MergeConflicts.Wrap = false
-
-					return gui.helpers.MergeConflicts.Render(true)
-				}),
-				OnFocusLost: func(opts types.OnFocusLostOpts) error {
-					gui.State.Contexts.MergeConflicts.SetUserScrolling(false)
-					gui.State.Contexts.MergeConflicts.GetState().ResetConflictSelection()
-					gui.Views.MergeConflicts.Wrap = true
-
-					return nil
-				},
-			},
+			context.ContextCallbackOpts{},
 			gui.c,
 			func() map[string]string {
 				// wrapping in a function because contexts are initialized before helpers
