@@ -112,6 +112,10 @@ func (self *RefreshHelper) Refresh(options types.RefreshOptions) error {
 			refresh(func() { _ = self.refreshRebaseCommits() })
 		}
 
+		if scopeSet.Includes(types.SUB_COMMITS) {
+			refresh(func() { _ = self.refreshSubCommitsWithLimit() })
+		}
+
 		// reason we're not doing this if the COMMITS type is included is that if the COMMITS type _is_ included we will refresh the commit files context anyway
 		if scopeSet.Includes(types.COMMIT_FILES) && !scopeSet.Includes(types.COMMITS) {
 			refresh(func() { _ = self.refreshCommitFilesContext() })
@@ -172,6 +176,7 @@ func getScopeNames(scopes []types.RefreshableView) []string {
 		types.BRANCHES:        "branches",
 		types.FILES:           "files",
 		types.SUBMODULES:      "submodules",
+		types.SUB_COMMITS:     "subCommits",
 		types.STASH:           "stash",
 		types.REFLOG:          "reflog",
 		types.TAGS:            "tags",
@@ -277,7 +282,6 @@ func (self *RefreshHelper) refreshCommitsWithLimit() error {
 	return self.c.PostRefreshUpdate(self.contexts.LocalCommits)
 }
 
-// NOTE: used from outside this file
 func (self *RefreshHelper) refreshSubCommitsWithLimit() error {
 	self.c.Mutexes().SubCommitsMutex.Lock()
 	defer self.c.Mutexes().SubCommitsMutex.Unlock()

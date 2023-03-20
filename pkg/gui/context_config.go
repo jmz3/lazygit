@@ -181,10 +181,6 @@ func (gui *Gui) contextTree() *context.ContextTree {
 			}),
 			context.ContextCallbackOpts{
 				OnFocus: OnFocusWrapper(gui.handleAskFocused),
-				OnFocusLost: func(types.OnFocusLostOpts) error {
-					gui.deactivateConfirmationPrompt()
-					return nil
-				},
 			},
 		),
 		CommitMessage: context.NewSimpleContext(

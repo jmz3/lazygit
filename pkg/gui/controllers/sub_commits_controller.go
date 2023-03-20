@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/jesseduffield/lazygit/pkg/gui/context"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/jesseduffield/lazygit/pkg/utils"
 )
 
 type SubCommitsController struct {
@@ -54,11 +55,11 @@ func (self *SubCommitsController) GetOnRenderToMain() func() error {
 
 func (self *SubCommitsController) GetOnFocus() func() error {
 	return func() error {
-		context := self.context()
+		context := self.context
 		if context.GetSelectedLineIdx() > COMMIT_THRESHOLD && context.GetLimitCommits() {
 			context.SetLimitCommits(false)
 			go utils.Safe(func() {
-				if err := self.helpers.Refresh.RefreshSubCommitsWithLimit(); err != nil {
+				if err := self.c.Refresh(types.RefreshOptions{Scope: []types.RefreshableView{types.SUB_COMMITS}}); err != nil {
 					_ = self.c.Error(err)
 				}
 			})

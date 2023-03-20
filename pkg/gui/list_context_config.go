@@ -243,10 +243,6 @@ func (gui *Gui) suggestionsListContext() *context.SuggestionsContext {
 		func(startIdx int, length int) [][]string {
 			return presentation.GetSuggestionListDisplayStrings(gui.State.Suggestions)
 		},
-		func(types.OnFocusLostOpts) error {
-			gui.deactivateConfirmationPrompt()
-			return nil
-		},
 		gui.c,
 	)
 }

@@ -17,8 +17,6 @@ func NewSuggestionsContext(
 	view *gocui.View,
 	getDisplayStrings func(startIdx int, length int) [][]string,
 
-	onFocusLost func(opts types.OnFocusLostOpts) error,
-
 	c *types.HelperCommon,
 ) *SuggestionsContext {
 	viewModel := NewBasicViewModel(getModel)
@@ -33,9 +31,7 @@ func NewSuggestionsContext(
 				Kind:                  types.PERSISTENT_POPUP,
 				Focusable:             true,
 				HasUncontrolledBounds: true,
-			}), ContextCallbackOpts{
-				OnFocusLost: onFocusLost,
-			}),
+			}), ContextCallbackOpts{}),
 			list:              viewModel,
 			getDisplayStrings: getDisplayStrings,
 			c:                 c,

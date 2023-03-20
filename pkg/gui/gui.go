@@ -247,6 +247,14 @@ func (self *GuiRepoState) SetStartupStage(value types.StartupStage) {
 	self.StartupStage = value
 }
 
+func (self *GuiRepoState) GetCurrentPopupOpts() *types.CreatePopupPanelOpts {
+	return self.CurrentPopupOpts
+}
+
+func (self *GuiRepoState) SetCurrentPopupOpts(value *types.CreatePopupPanelOpts) {
+	self.CurrentPopupOpts = value
+}
+
 type searchingState struct {
 	view         *gocui.View
 	isSearching  bool

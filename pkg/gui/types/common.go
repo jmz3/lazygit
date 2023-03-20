@@ -221,6 +221,8 @@ type IRepoStateAccessor interface {
 	GetWindowViewNameMap() *utils.ThreadSafeMap[string, string]
 	GetStartupStage() StartupStage
 	SetStartupStage(stage StartupStage)
+	GetCurrentPopupOpts() *CreatePopupPanelOpts
+	SetCurrentPopupOpts(*CreatePopupPanelOpts)
 }
 
 // startup stages so we don't need to load everything at once
